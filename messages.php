@@ -49,6 +49,7 @@ if($role==='client'){
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Messages — QuickFix ZW</title>
 <link rel="stylesheet" href="/quickfix/css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
 .convo-item{display:block;padding:0.85rem 1.2rem;border-left:4px solid transparent;border-bottom:1px solid var(--border);transition:all 0.2s;cursor:pointer;}
 .convo-item:hover,.convo-item.active{background:rgba(230,92,0,0.06);border-left-color:var(--primary);}

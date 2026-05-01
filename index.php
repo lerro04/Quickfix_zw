@@ -6,9 +6,14 @@ if(isset($_SESSION['user_id'])){
     else header('Location: /quickfix/client/dashboard.php');
     exit;
 }
+if($_SERVER['REQUEST_METHOD'] === 'GET' && !isset($_GET['auth'])){
+    header('Location: /quickfix/browse.php');
+    exit;
+}
 require_once 'includes/db.php';
 $error = '';
 $success = '';
+$authMode = ($_GET['auth'] ?? 'login') === 'register' ? 'register' : 'login';
 
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $action = $_POST['action'] ?? '';
@@ -81,8 +86,8 @@ $TRADES = ['Plumbing','Electrical','Painting','Carpentry','Tiling','Roofing','We
       <a href="/quickfix/browse.php" class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.5)">Browse Services</a>
       <a href="/quickfix/about.php" class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.5)">About</a>
       <a href="/quickfix/support.php" class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.5)">Support</a>
-      <button onclick="showTab('login',this)" class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.5)">Login</button>
-      <button onclick="showTab('register',this)" class="btn btn-primary">Get Started</button>
+      <a href="/quickfix/index.php?auth=login#auth" class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.5)">Login</a>
+      <a href="/quickfix/index.php?auth=register#auth" class="btn btn-primary">Get Started</a>
     </div>
   </nav>
 
@@ -118,11 +123,11 @@ $TRADES = ['Plumbing','Electrical','Painting','Carpentry','Tiling','Roofing','We
       <?php if($success): ?><div class="alert alert-success"><?= $success ?></div><?php endif; ?>
 
       <div class="auth-tabs">
-        <div class="auth-tab active" id="tab-login" onclick="showTab('login',this)">Login</div>
-        <div class="auth-tab" id="tab-register" onclick="showTab('register',this)">Register</div>
+        <div class="auth-tab <?= $authMode === 'login' ? 'active' : '' ?>" id="tab-login" onclick="showTab('login',this)">Login</div>
+        <div class="auth-tab <?= $authMode === 'register' ? 'active' : '' ?>" id="tab-register" onclick="showTab('register',this)">Register</div>
       </div>
 
-      <form id="login-form" method="POST">
+      <form id="login-form" method="POST" style="<?= $authMode === 'login' ? '' : 'display:none' ?>">
         <input type="hidden" name="action" value="login">
         <div class="form-group">
           <label class="form-label">Email Address</label>
@@ -135,7 +140,7 @@ $TRADES = ['Plumbing','Electrical','Painting','Carpentry','Tiling','Roofing','We
         <button type="submit" class="btn btn-primary btn-block">Login</button>
       </form>
 
-      <form id="register-form" method="POST" style="display:none">
+      <form id="register-form" method="POST" style="<?= $authMode === 'register' ? '' : 'display:none' ?>">
         <input type="hidden" name="action" value="register">
         <div class="form-group">
           <label class="form-label">Full Name *</label>

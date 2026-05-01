@@ -29,17 +29,17 @@ $name = $_SESSION['full_name'] ?? '';
       <a href="/quickfix/admin/disputes.php" class="nav-link"><?=icon('scale-balanced')?> Disputes</a>
       <a href="/quickfix/admin/analytics.php" class="nav-link"><?=icon('chart-line')?> Analytics</a>
     <?php else: ?>
-      <a href="/quickfix/index.php" class="nav-link"><?=icon('house')?> Home</a>
+      <a href="/quickfix/browse.php" class="nav-link"><?=icon('house')?> Home</a>
       <a href="/quickfix/browse.php" class="nav-link"><?=icon('magnifying-glass')?> Browse</a>
       <a href="/quickfix/about.php" class="nav-link"><?=icon('circle-info')?> About</a>
       <a href="/quickfix/support.php" class="nav-link"><?=icon('headset')?> Support</a>
-      <a href="/quickfix/index.php#auth" class="nav-link"><?=icon('right-to-bracket')?> Login</a>
+      <a href="/quickfix/index.php?auth=login#auth" class="nav-link"><?=icon('right-to-bracket')?> Login</a>
     <?php endif; ?>
     <?php if($role): ?>
       <span style="color:rgba(255,255,255,0.55);padding:0 0.4rem;font-size:0.82rem"><?=icon('user')?> <?= htmlspecialchars($name) ?></span>
       <a href="/quickfix/logout.php" class="nav-link btn-logout"><?=icon('right-from-bracket')?> Logout</a>
     <?php else: ?>
-      <a href="/quickfix/index.php#auth" class="nav-link btn-logout"><?=icon('user-plus')?> Create Account</a>
+      <a href="/quickfix/index.php?auth=register#auth" class="nav-link btn-logout"><?=icon('user-plus')?> Create Account</a>
     <?php endif; ?>
   </div>
 </nav>

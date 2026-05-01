@@ -104,7 +104,7 @@ $pros = $stmt->fetchAll();
       <?php if($canBook): ?>
         <a href="/quickfix/messages.php?with=<?=$p['user_id']?>" class="btn btn-outline btn-sm"><?=icon('comments')?></a>
       <?php else: ?>
-        <a href="/quickfix/index.php#auth" class="btn btn-outline btn-sm"><?=icon('right-to-bracket')?></a>
+        <a href="/quickfix/index.php?auth=login#auth" class="btn btn-outline btn-sm"><?=icon('right-to-bracket')?></a>
       <?php endif; ?>
     </div>
   </div>

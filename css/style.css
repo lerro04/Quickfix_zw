@@ -177,6 +177,13 @@ tbody td { padding:0.8rem 1rem; }
 .pagination-link { padding:0.55rem 0.9rem; border-radius:8px; border:1px solid var(--border); background:white; color:var(--dark); }
 .pagination-link.active { background:var(--primary); border-color:var(--primary); color:white; }
 .metric-note { color:var(--gray); font-size:0.82rem; margin-top:0.2rem; }
+.upload-note { color:var(--gray); font-size:0.8rem; margin-top:0.35rem; }
+.image-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:0.85rem; margin-top:1rem; }
+.image-tile { background:#fff; border:1px solid var(--border); border-radius:12px; overflow:hidden; box-shadow:var(--shadow); }
+.image-tile img { width:100%; height:130px; object-fit:cover; display:block; background:#f6f7f9; }
+.image-tile-body { padding:0.7rem; font-size:0.78rem; color:var(--gray); }
+.job-image-strip { display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.9rem; }
+.job-image-thumb { width:88px; height:88px; object-fit:cover; border-radius:10px; border:1px solid var(--border); background:#fff; box-shadow:var(--shadow); }
 
 /* MESSAGING */
 .msg-box { height:380px; overflow-y:auto; background:var(--light); border-radius:10px; padding:1rem; display:flex; flex-direction:column; gap:0.6rem; }

@@ -19,13 +19,13 @@ $recent = $pdo->query("SELECT u.*,pp.trade FROM users u LEFT JOIN professional_p
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin Dashboard - QuickFix ZW</title>
-<link rel="stylesheet" href="/quickfix/css/style.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head><body>
 <?php include '../includes/navbar.php'; ?>
 <div class="container"><br>
-<?php if($pending > 0): ?><div class="alert alert-warning"><?=icon('triangle-exclamation')?> <?=$pending?> professional(s) awaiting verification. <a href="/quickfix/admin/users.php" style="color:var(--warning);font-weight:700">Verify now</a></div><?php endif; ?>
-<?php if($disputes > 0): ?><div class="alert alert-danger"><?=icon('triangle-exclamation')?> <?=$disputes?> active dispute(s) need resolution. <a href="/quickfix/admin/disputes.php" style="color:var(--danger);font-weight:700">Resolve now</a></div><?php endif; ?>
+<?php if($pending > 0): ?><div class="alert alert-warning"><?=icon('triangle-exclamation')?> <?=$pending?> professional(s) awaiting verification. <a href="<?= BASE_URL ?>/admin/users.php" style="color:var(--warning);font-weight:700">Verify now</a></div><?php endif; ?>
+<?php if($disputes > 0): ?><div class="alert alert-danger"><?=icon('triangle-exclamation')?> <?=$disputes?> active dispute(s) need resolution. <a href="<?= BASE_URL ?>/admin/disputes.php" style="color:var(--danger);font-weight:700">Resolve now</a></div><?php endif; ?>
 
 <div class="page-title"><?=icon('gauge-high')?> Admin Dashboard</div>
 <div class="card-grid">
@@ -38,11 +38,11 @@ $recent = $pdo->query("SELECT u.*,pp.trade FROM users u LEFT JOIN professional_p
 </div>
 
 <div style="display:flex;gap:1rem;flex-wrap:wrap;margin:0.5rem 0 1.5rem">
-  <a href="/quickfix/admin/users.php" class="btn btn-primary"><?=icon('users')?> Manage Users</a>
-  <a href="/quickfix/admin/jobs.php" class="btn btn-secondary"><?=icon('briefcase')?> All Jobs</a>
-  <a href="/quickfix/admin/bookings.php" class="btn btn-secondary"><?=icon('calendar-days')?> All Bookings</a>
-  <a href="/quickfix/admin/disputes.php" class="btn btn-danger"><?=icon('scale-balanced')?> Disputes</a>
-  <a href="/quickfix/admin/analytics.php" class="btn btn-success"><?=icon('chart-line')?> Analytics</a>
+  <a href="<?= BASE_URL ?>/admin/users.php" class="btn btn-primary"><?=icon('users')?> Manage Users</a>
+  <a href="<?= BASE_URL ?>/admin/jobs.php" class="btn btn-secondary"><?=icon('briefcase')?> All Jobs</a>
+  <a href="<?= BASE_URL ?>/admin/bookings.php" class="btn btn-secondary"><?=icon('calendar-days')?> All Bookings</a>
+  <a href="<?= BASE_URL ?>/admin/disputes.php" class="btn btn-danger"><?=icon('scale-balanced')?> Disputes</a>
+  <a href="<?= BASE_URL ?>/admin/analytics.php" class="btn btn-success"><?=icon('chart-line')?> Analytics</a>
 </div>
 
 <div class="card">

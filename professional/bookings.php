@@ -17,7 +17,7 @@ $pending=$pdo->prepare("SELECT COALESCE(SUM(agreed_amount),0) as t FROM bookings
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>My Bookings — QuickFix ZW</title>
-<link rel="stylesheet" href="/quickfix/css/style.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head><body>
 <?php include '../includes/navbar.php'; ?>
@@ -52,11 +52,11 @@ $pending=$pdo->prepare("SELECT COALESCE(SUM(agreed_amount),0) as t FROM bookings
   <?php if($b['status']==='confirmed'): ?>
   <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
     <form method="POST"><input type="hidden" name="booking_id" value="<?=$b['booking_id']?>"><button name="start_job" class="btn btn-primary btn-sm">🚀 Start Job</button></form>
-    <a href="/quickfix/messages.php?with=<?=$b['client_id']?>" class="btn btn-outline btn-sm">💬 Message Client</a>
+    <a href="<?= BASE_URL ?>/messages.php?with=<?=$b['client_id']?>" class="btn btn-outline btn-sm">💬 Message Client</a>
   </div>
   <?php elseif($b['status']==='in_progress'): ?>
   <div style="padding:0.6rem;background:#fff3cd;border-radius:8px;font-size:0.85rem;color:#856404">
-    🔧 Job in progress. The client will mark it complete once you're done. <a href="/quickfix/messages.php?with=<?=$b['client_id']?>" style="color:var(--primary)">Message client →</a>
+    🔧 Job in progress. The client will mark it complete once you're done. <a href="<?= BASE_URL ?>/messages.php?with=<?=$b['client_id']?>" style="color:var(--primary)">Message client →</a>
   </div>
   <?php elseif($b['status']==='completed'): ?>
   <div style="padding:0.6rem;background:#d4edda;border-radius:8px;font-size:0.85rem;color:#155724">

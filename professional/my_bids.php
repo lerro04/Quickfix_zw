@@ -10,14 +10,14 @@ $bids->execute([$uid]); $myBids=$bids->fetchAll();
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>My Bids — QuickFix ZW</title>
-<link rel="stylesheet" href="/quickfix/css/style.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head><body>
 <?php include '../includes/navbar.php'; ?>
 <div class="container"><br>
 <div class="page-title">💰 My Bids (<?=count($myBids)?>)</div>
 <?php if(empty($myBids)): ?>
-<div class="alert alert-info">No bids yet. <a href="/quickfix/professional/job_board.php" style="color:var(--primary)">Browse the job board!</a></div>
+<div class="alert alert-info">No bids yet. <a href="<?= BASE_URL ?>/professional/job_board.php" style="color:var(--primary)">Browse the job board!</a></div>
 <?php else: ?>
 <?php foreach($myBids as $b): ?>
 <div class="job-card">
@@ -46,7 +46,7 @@ $bids->execute([$uid]); $myBids=$bids->fetchAll();
   </div>
   <?php if($b['status']==='accepted'): ?>
   <div style="margin-top:0.8rem;padding:0.7rem;background:#d4edda;border-radius:8px;font-size:0.88rem;color:#155724">
-    ✅ <strong>Your bid was accepted!</strong> Check <a href="/quickfix/professional/bookings.php" style="color:var(--success)">My Bookings</a> for details.
+    ✅ <strong>Your bid was accepted!</strong> Check <a href="<?= BASE_URL ?>/professional/bookings.php" style="color:var(--success)">My Bookings</a> for details.
   </div>
   <?php endif; ?>
 </div>

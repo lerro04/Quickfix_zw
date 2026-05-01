@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__.'/config.php';
 const PLATFORM_COMMISSION_RATE = 0.10;
 
 function sanitize($d){ return htmlspecialchars(strip_tags(trim($d))); }

@@ -10,7 +10,7 @@ if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['send'])){
     $to=(int)$_POST['receiver_id'];
     $msg=htmlspecialchars(trim($_POST['message']));
     if($msg && $to) $pdo->prepare("INSERT INTO messages (sender_id,receiver_id,message) VALUES (?,?,?)")->execute([$uid,$to,$msg]);
-    header('Location: /quickfix/messages.php?with='.$to); exit;
+    header('Location: '.BASE_URL.'/messages.php?with='.$to); exit;
 }
 
 $thread=(int)($_GET['with']??0);
@@ -48,7 +48,7 @@ if($role==='client'){
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Messages — QuickFix ZW</title>
-<link rel="stylesheet" href="/quickfix/css/style.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
 .convo-item{display:block;padding:0.85rem 1.2rem;border-left:4px solid transparent;border-bottom:1px solid var(--border);transition:all 0.2s;cursor:pointer;}
@@ -65,7 +65,7 @@ if($role==='client'){
   <div class="card" style="display:flex;flex-direction:column;overflow:hidden">
     <div class="card-header">💬 Messages</div>
     <div style="padding:0.7rem;border-bottom:1px solid var(--border)">
-      <select onchange="if(this.value) window.location='/quickfix/messages.php?with='+this.value" class="form-select" style="font-size:0.82rem">
+      <select onchange="if(this.value) window.location='<?= BASE_URL ?>/messages.php?with='+this.value" class="form-select" style="font-size:0.82rem">
         <option value="">➕ Start new conversation</option>
         <?php foreach($contacts as $c): ?>
         <option value="<?=$c['user_id']?>"><?=$c['full_name']?> (<?=ucfirst($c['role'])?>)</option>

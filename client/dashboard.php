@@ -14,7 +14,7 @@ $recentBooks = $pdo->prepare("SELECT b.*,u.full_name as pro_name,pp.trade FROM b
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Dashboard — QuickFix ZW</title>
-<link rel="stylesheet" href="/quickfix/css/style.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head><body>
 <?php include '../includes/navbar.php'; ?>
@@ -27,8 +27,8 @@ $recentBooks = $pdo->prepare("SELECT b.*,u.full_name as pro_name,pp.trade FROM b
   </div>
 
   <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem">
-    <a href="/quickfix/client/browse.php" class="btn btn-primary btn-lg">🔍 Browse Professionals</a>
-    <a href="/quickfix/client/post_job.php" class="btn btn-secondary btn-lg">➕ Post a Job</a>
+    <a href="<?= BASE_URL ?>/client/browse.php" class="btn btn-primary btn-lg">🔍 Browse Professionals</a>
+    <a href="<?= BASE_URL ?>/client/post_job.php" class="btn btn-secondary btn-lg">➕ Post a Job</a>
   </div>
 
   <!-- Open jobs with bids -->
@@ -47,7 +47,7 @@ $recentBooks = $pdo->prepare("SELECT b.*,u.full_name as pro_name,pp.trade FROM b
         <div style="display:flex;align-items:center;gap:0.8rem">
           <?= urgencyBadge($j['urgency']) ?>
           <?php if($j['bid_count']>0): ?>
-            <a href="/quickfix/client/view_bids.php?job=<?=$j['job_id']?>" class="btn btn-primary btn-sm">💰 <?=$j['bid_count']?> Bid(s)</a>
+            <a href="<?= BASE_URL ?>/client/view_bids.php?job=<?=$j['job_id']?>" class="btn btn-primary btn-sm">💰 <?=$j['bid_count']?> Bid(s)</a>
           <?php else: ?>
             <span class="badge badge-warning">No bids yet</span>
           <?php endif; ?>
@@ -63,7 +63,7 @@ $recentBooks = $pdo->prepare("SELECT b.*,u.full_name as pro_name,pp.trade FROM b
     <div class="card-header">📅 Recent Bookings</div>
     <div class="card-body">
       <?php if(empty($recent)): ?>
-        <p style="color:#999;text-align:center;padding:1.5rem">No bookings yet. <a href="/quickfix/client/browse.php" style="color:var(--primary)">Find a professional!</a></p>
+        <p style="color:#999;text-align:center;padding:1.5rem">No bookings yet. <a href="<?= BASE_URL ?>/client/browse.php" style="color:var(--primary)">Find a professional!</a></p>
       <?php else: ?>
       <div class="table-wrap"><table>
         <thead><tr><th>Professional</th><th>Trade</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead>

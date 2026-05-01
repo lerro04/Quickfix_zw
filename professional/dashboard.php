@@ -15,7 +15,7 @@ $recentBids=$pdo->prepare("SELECT b.*,j.title,j.location,j.client_budget,u.full_
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Dashboard — QuickFix ZW</title>
-<link rel="stylesheet" href="/quickfix/css/style.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head><body>
 <?php include '../includes/navbar.php'; ?>
@@ -45,14 +45,14 @@ $recentBids=$pdo->prepare("SELECT b.*,j.title,j.location,j.client_budget,u.full_
 </div>
 
 <div style="display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0">
-  <a href="/quickfix/professional/job_board.php" class="btn btn-primary">📋 View Job Board</a>
-  <a href="/quickfix/professional/profile.php" class="btn btn-secondary">👤 Edit Profile</a>
+  <a href="<?= BASE_URL ?>/professional/job_board.php" class="btn btn-primary">📋 View Job Board</a>
+  <a href="<?= BASE_URL ?>/professional/profile.php" class="btn btn-secondary">👤 Edit Profile</a>
 </div>
 
 <div class="card">
   <div class="card-header">💰 Recent Bids</div>
   <div class="card-body">
-    <?php if(empty($myBids)): ?><p style="color:#999;text-align:center;padding:1.5rem">No bids yet. <a href="/quickfix/professional/job_board.php" style="color:var(--primary)">Browse the job board!</a></p>
+    <?php if(empty($myBids)): ?><p style="color:#999;text-align:center;padding:1.5rem">No bids yet. <a href="<?= BASE_URL ?>/professional/job_board.php" style="color:var(--primary)">Browse the job board!</a></p>
     <?php else: ?>
     <div class="table-wrap"><table>
       <thead><tr><th>Job</th><th>Client</th><th>Location</th><th>My Bid</th><th>Status</th><th>Time</th></tr></thead>

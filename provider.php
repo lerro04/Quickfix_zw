@@ -17,7 +17,7 @@ $canBook = isset($_SESSION['role']) && $_SESSION['role'] === 'client';
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title><?= $provider ? htmlspecialchars($provider['full_name']).' - QuickFix ZW' : 'Provider not found - QuickFix ZW' ?></title>
-<link rel="stylesheet" href="/quickfix/css/style.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head><body>
 <?php include 'includes/navbar.php'; ?>
@@ -58,11 +58,11 @@ $canBook = isset($_SESSION['role']) && $_SESSION['role'] === 'client';
       </div>
       <div style="display:grid;gap:0.75rem;margin-top:1.25rem">
         <?php if($canBook): ?>
-          <a href="/quickfix/browse.php?book=<?=$provider['user_id']?>" class="btn btn-primary"><?=icon('calendar-plus')?> Book this professional</a>
-          <a href="/quickfix/messages.php?with=<?=$provider['user_id']?>" class="btn btn-outline"><?=icon('comments')?> Message professional</a>
+          <a href="<?= BASE_URL ?>/browse.php?book=<?=$provider['user_id']?>" class="btn btn-primary"><?=icon('calendar-plus')?> Book this professional</a>
+          <a href="<?= BASE_URL ?>/messages.php?with=<?=$provider['user_id']?>" class="btn btn-outline"><?=icon('comments')?> Message professional</a>
         <?php else: ?>
-          <a href="/quickfix/index.php#auth" class="btn btn-primary"><?=icon('user-plus')?> Create an account to book</a>
-          <a href="/quickfix/support.php" class="btn btn-outline"><?=icon('headset')?> Need help choosing?</a>
+          <a href="<?= BASE_URL ?>/login.php?mode=register" class="btn btn-primary"><?=icon('user-plus')?> Create an account to book</a>
+          <a href="<?= BASE_URL ?>/support.php" class="btn btn-outline"><?=icon('headset')?> Need help choosing?</a>
         <?php endif; ?>
       </div>
     </div>

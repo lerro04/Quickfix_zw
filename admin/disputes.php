@@ -24,7 +24,7 @@ $disputes=$pdo->query("SELECT b.*,c.full_name as client,c.phone as client_phone,
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Disputes — QuickFix ZW Admin</title>
-<link rel="stylesheet" href="/quickfix/css/style.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head><body>
 <?php include '../includes/navbar.php'; ?>
@@ -61,8 +61,8 @@ $disputes=$pdo->query("SELECT b.*,c.full_name as client,c.phone as client_phone,
         <input type="hidden" name="booking_id" value="<?=$d['booking_id']?>">
         <button name="refund_client" class="btn btn-warning" onclick="return confirm('Refund the client?')">↩️ Refund Client</button>
       </form>
-      <a href="/quickfix/messages.php?with=<?=$d['client_id']?>" class="btn btn-outline btn-sm">💬 Message Client</a>
-      <a href="/quickfix/messages.php?with=<?=$d['professional_id']?>" class="btn btn-outline btn-sm">💬 Message Professional</a>
+      <a href="<?= BASE_URL ?>/messages.php?with=<?=$d['client_id']?>" class="btn btn-outline btn-sm">💬 Message Client</a>
+      <a href="<?= BASE_URL ?>/messages.php?with=<?=$d['professional_id']?>" class="btn btn-outline btn-sm">💬 Message Professional</a>
     </div>
   </div>
 </div>

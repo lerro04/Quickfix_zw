@@ -1,0 +1,14 @@
+# Claude Code session state
+.claude/
+
+# Application logs
+logs/
+
+# Uploaded user files (keep dir + access controls only)
+uploads/national_ids/*
+!uploads/national_ids/.htaccess
+!uploads/national_ids/index.html
+
+# Environment / local config overrides
+.env
+*.local.php

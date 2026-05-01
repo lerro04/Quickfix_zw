@@ -43,6 +43,17 @@ CREATE TABLE IF NOT EXISTS professional_profiles (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS professional_portfolio_images (
+    image_id       INT AUTO_INCREMENT PRIMARY KEY,
+    user_id        INT NOT NULL,
+    image_path     VARCHAR(255) NOT NULL,
+    original_name  VARCHAR(255) DEFAULT NULL,
+    mime_type      VARCHAR(100) DEFAULT NULL,
+    file_size      INT DEFAULT 0,
+    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
 -- ============================================================
 -- JOB REQUESTS TABLE
 -- ============================================================
@@ -60,6 +71,17 @@ CREATE TABLE IF NOT EXISTS job_requests (
     created_at          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (client_id) REFERENCES users(user_id),
     FOREIGN KEY (hired_professional) REFERENCES users(user_id)
+);
+
+CREATE TABLE IF NOT EXISTS job_request_images (
+    image_id       INT AUTO_INCREMENT PRIMARY KEY,
+    job_id         INT NOT NULL,
+    image_path     VARCHAR(255) NOT NULL,
+    original_name  VARCHAR(255) DEFAULT NULL,
+    mime_type      VARCHAR(100) DEFAULT NULL,
+    file_size      INT DEFAULT 0,
+    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (job_id) REFERENCES job_requests(job_id) ON DELETE CASCADE
 );
 
 -- ============================================================

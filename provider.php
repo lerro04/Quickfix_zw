@@ -12,6 +12,13 @@ if(!$provider){
     http_response_code(404);
 }
 
+$portfolioImages = [];
+if($provider){
+    $imagesStmt = $pdo->prepare("SELECT * FROM professional_portfolio_images WHERE user_id=? ORDER BY created_at DESC");
+    $imagesStmt->execute([$providerId]);
+    $portfolioImages = $imagesStmt->fetchAll();
+}
+
 $canBook = isset($_SESSION['role']) && $_SESSION['role'] === 'client';
 ?>
 <!DOCTYPE html><html lang="en"><head>
@@ -40,10 +47,18 @@ $canBook = isset($_SESSION['role']) && $_SESSION['role'] === 'client';
       <p style="line-height:1.7;color:var(--dark)"><?=nl2br(htmlspecialchars($provider['bio'] ?: 'This professional has not added a full description yet.'))?></p>
 
       <h3 style="margin:1.5rem 0 0.75rem">Work gallery</h3>
-      <div class="detail-gallery">
-        <div class="gallery-placeholder"><?=icon('images')?> Portfolio image uploads are not implemented yet in this build.</div>
-        <div class="gallery-placeholder"><?=icon('camera')?> Add gallery storage to professional profiles to show past work here.</div>
-      </div>
+      <?php if(empty($portfolioImages)): ?>
+        <div class="gallery-placeholder"><?=icon('images')?> This professional has not uploaded work samples yet.</div>
+      <?php else: ?>
+        <div class="image-grid">
+          <?php foreach($portfolioImages as $image): ?>
+            <div class="image-tile">
+              <img src="<?=$image['image_path']?>" alt="Portfolio image for <?=htmlspecialchars($provider['full_name'])?>">
+              <div class="image-tile-body"><?=htmlspecialchars($image['original_name'] ?: 'Completed work sample')?></div>
+            </div>
+          <?php endforeach; ?>
+        </div>
+      <?php endif; ?>
     </div>
 
     <div class="section-card">

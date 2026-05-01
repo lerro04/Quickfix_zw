@@ -3,6 +3,7 @@ require_once '../includes/auth.php';
 requireRole('client');
 require_once '../includes/db.php';
 require_once '../includes/functions.php';
+require_once '../includes/mailer.php';
 $uid = $_SESSION['user_id'];
 $msg='';
 
@@ -11,10 +12,13 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
         $bid = (int)$_POST['booking_id'];
         $pdo->prepare("UPDATE bookings SET status='completed', payment_status='released', completed_at=NOW() WHERE booking_id=? AND client_id=?")->execute([$bid,$uid]);
         $pdo->prepare("UPDATE professional_profiles SET jobs_completed=jobs_completed+1 WHERE user_id=(SELECT professional_id FROM bookings WHERE booking_id=?)")->execute([$bid]);
+        notifyProPaymentReleased($pdo, $bid);
         $msg="✅ Job marked as complete. Payment released!";
     }
     if(isset($_POST['dispute'])){
-        $pdo->prepare("UPDATE bookings SET status='disputed' WHERE booking_id=? AND client_id=?")->execute([(int)$_POST['booking_id'],$uid]);
+        $bid = (int)$_POST['booking_id'];
+        $pdo->prepare("UPDATE bookings SET status='disputed' WHERE booking_id=? AND client_id=?")->execute([$bid,$uid]);
+        notifyAdminDispute($pdo, $bid);
         $msg="⚠️ Dispute raised. Admin will review.";
     }
     if(isset($_POST['leave_review'])){
@@ -36,7 +40,7 @@ $books->execute([$uid]); $bookings=$books->fetchAll();
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>My Bookings — QuickFix ZW</title>
-<link rel="stylesheet" href="/quickfix/css/style.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head><body>
 <?php include '../includes/navbar.php'; ?>
@@ -44,7 +48,7 @@ $books->execute([$uid]); $bookings=$books->fetchAll();
 <?php if($msg): ?><div class="alert alert-<?=str_starts_with($msg,'✅')?'success':'warning'?>"><?=$msg?></div><?php endif; ?>
 <div class="page-title">📅 My Bookings</div>
 <?php if(empty($bookings)): ?>
-<div class="alert alert-info">No bookings yet. <a href="/quickfix/client/browse.php" style="color:var(--primary)">Browse professionals</a> or <a href="/quickfix/client/post_job.php" style="color:var(--primary)">post a job!</a></div>
+<div class="alert alert-info">No bookings yet. <a href="<?= BASE_URL ?>/client/browse.php" style="color:var(--primary)">Browse professionals</a> or <a href="<?= BASE_URL ?>/client/post_job.php" style="color:var(--primary)">post a job!</a></div>
 <?php else: ?>
 <?php foreach($bookings as $b): ?>
 <div class="job-card">
@@ -66,16 +70,24 @@ $books->execute([$uid]); $bookings=$books->fetchAll();
   </div>
 
   <?php if($b['status']==='in_progress' || $b['status']==='confirmed'): ?>
-  <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center">
+    <?php if($b['payment_status']==='pending'): ?>
+      <form method="POST" action="<?= BASE_URL ?>/paynow_init.php">
+        <input type="hidden" name="booking_id" value="<?=$b['booking_id']?>">
+        <button type="submit" class="btn btn-primary btn-sm">💳 Pay $<?=number_format($b['agreed_amount'],2)?> via Paynow</button>
+      </form>
+    <?php elseif($b['payment_status']==='held'): ?>
+      <span class="badge badge-success">💳 Paid — funds held until you confirm completion</span>
+    <?php endif; ?>
     <form method="POST" onsubmit="return confirm('Mark as complete and release payment?')">
       <input type="hidden" name="booking_id" value="<?=$b['booking_id']?>">
-      <button name="complete" class="btn btn-success btn-sm">✅ Mark Complete & Pay</button>
+      <button name="complete" class="btn btn-success btn-sm">✅ Mark Complete & Release Payment</button>
     </form>
     <form method="POST">
       <input type="hidden" name="booking_id" value="<?=$b['booking_id']?>">
       <button name="dispute" class="btn btn-danger btn-sm">⚠️ Raise Dispute</button>
     </form>
-    <a href="/quickfix/messages.php?with=<?=$b['professional_id']?>" class="btn btn-outline btn-sm">💬 Message Professional</a>
+    <a href="<?= BASE_URL ?>/messages.php?with=<?=$b['professional_id']?>" class="btn btn-outline btn-sm">💬 Message Professional</a>
   </div>
   <?php endif; ?>
 

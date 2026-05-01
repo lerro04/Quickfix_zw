@@ -53,7 +53,7 @@ $users = $pdo->query($query)->fetchAll();
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Users - QuickFix ZW Admin</title>
-<link rel="stylesheet" href="/quickfix/css/style.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head><body>
 <?php include '../includes/navbar.php'; ?>
@@ -79,7 +79,17 @@ $users = $pdo->query($query)->fetchAll();
         <td><?=$u['trade'] ? tradeIcon($u['trade']).' '.$u['trade'] : '-'?></td>
         <td><?=$u['location'] ?? '-'?></td>
         <td><?=$u['phone'] ?? '-'?></td>
-        <td style="font-size:0.8rem"><?=$u['national_id'] ?? 'Not provided'?></td>
+        <td style="font-size:0.8rem">
+          <?=$u['national_id'] ? htmlspecialchars($u['national_id']) : 'Not provided'?>
+          <?php if(!empty($u['national_id_file'])): ?>
+            <div style="margin-top:0.3rem;display:flex;gap:0.25rem;flex-wrap:wrap">
+              <a href="<?= BASE_URL ?>/admin/view_id.php?user_id=<?=$u['user_id']?>" target="_blank" class="btn btn-outline btn-sm" style="padding:0.25rem 0.5rem;font-size:0.72rem"><?=icon('id-card')?> View ID</a>
+              <a href="<?= BASE_URL ?>/admin/view_id.php?user_id=<?=$u['user_id']?>&download=1" class="btn btn-outline btn-sm" style="padding:0.25rem 0.5rem;font-size:0.72rem" title="Download"><?=icon('download')?></a>
+            </div>
+          <?php else: ?>
+            <div style="font-size:0.72rem;color:#bbb;margin-top:0.2rem">No ID file</div>
+          <?php endif; ?>
+        </td>
         <td><?=$u['trade'] ? stars($u['rating_avg']).' ('.$u['jobs_completed'].')' : '-'?></td>
         <td><?=$u['verified'] ? '<span class="badge badge-success">Verified</span>' : '<span class="badge badge-warning">Pending</span>'?></td>
         <td>

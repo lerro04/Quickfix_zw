@@ -3,24 +3,36 @@ require_once '../includes/auth.php';
 requireRole('client');
 require_once '../includes/db.php';
 require_once '../includes/functions.php';
+require_once '../includes/mailer.php';
 $uid = $_SESSION['user_id'];
-$TRADES=['Plumbing','Electrical','Painting','Carpentry','Tiling','Roofing','Welding','Landscaping','General Handyman'];
+$TRADES = $pdo->query("SELECT name FROM trades WHERE is_active=1 ORDER BY name")->fetchAll(PDO::FETCH_COLUMN);
 $msg='';
 if($_SERVER['REQUEST_METHOD']==='POST'){
     $title  = htmlspecialchars(trim($_POST['title']));
     $desc   = htmlspecialchars(trim($_POST['description']));
-    $trade  = $_POST['trade'];
+    $trade  = trim($_POST['trade'] ?? '');
+    $custom = trim($_POST['trade_other'] ?? '');
+    if($trade === '__other__' && $custom !== ''){
+        $trade = htmlspecialchars($custom);
+        $pdo->prepare("INSERT IGNORE INTO trades (name) VALUES (?)")->execute([$trade]);
+    }
     $loc    = htmlspecialchars(trim($_POST['location']));
     $budget = (float)$_POST['client_budget'];
     $urg    = $_POST['urgency'];
-    $pdo->prepare("INSERT INTO job_requests (client_id,title,description,trade,location,client_budget,urgency) VALUES (?,?,?,?,?,?,?)")->execute([$uid,$title,$desc,$trade,$loc,$budget,$urg]);
-    $msg = "✅ Job posted! Professionals in your area can now see and bid on your request.";
+    if($trade !== ''){
+        $pdo->prepare("INSERT INTO job_requests (client_id,title,description,trade,location,client_budget,urgency) VALUES (?,?,?,?,?,?,?)")->execute([$uid,$title,$desc,$trade,$loc,$budget,$urg]);
+        $jobId = (int)$pdo->lastInsertId();
+        notifyProsOfNewJob($pdo, $jobId);
+        $msg = "✅ Job posted! Professionals in your area have been notified.";
+    } else {
+        $msg = "⚠️ Please pick a trade.";
+    }
 }
 ?>
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Post a Job — QuickFix ZW</title>
-<link rel="stylesheet" href="/quickfix/css/style.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head><body>
 <?php include '../includes/navbar.php'; ?>
@@ -44,10 +56,14 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Trade Needed *</label>
-          <select name="trade" class="form-select" required>
+          <select name="trade" class="form-select" required onchange="document.getElementById('trade_other_wrap').style.display=this.value==='__other__'?'block':'none'">
             <option value="">— Select trade —</option>
-            <?php foreach($TRADES as $t): ?><option value="<?=$t?>"><?=tradeIcon($t)?> <?=$t?></option><?php endforeach; ?>
+            <?php foreach($TRADES as $t): ?><option value="<?=htmlspecialchars($t)?>"><?=$t?></option><?php endforeach; ?>
+            <option value="__other__">+ Other (specify)</option>
           </select>
+          <div id="trade_other_wrap" style="display:none;margin-top:0.4rem">
+            <input type="text" name="trade_other" class="form-control" placeholder="Type the trade you need (e.g. Solar Installation)">
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Your Location *</label>

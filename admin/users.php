@@ -112,4 +112,5 @@ $users = $pdo->query($query)->fetchAll();
   </div>
 </div>
 </div>
+<?php include '../includes/footer.php'; ?>
 </body></html>

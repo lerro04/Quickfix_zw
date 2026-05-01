@@ -13,7 +13,7 @@ $recentBooks = $pdo->prepare("SELECT b.*,u.full_name as pro_name,pp.trade FROM b
 ?>
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Dashboard — QuickFix ZW</title>
+<title>Dashboard â€” QuickFix ZW</title>
 <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head><body>
@@ -21,33 +21,33 @@ $recentBooks = $pdo->prepare("SELECT b.*,u.full_name as pro_name,pp.trade FROM b
 <div class="container">
   <br>
   <div class="card-grid">
-    <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-info"><h3><?=$jobCount?></h3><p>Jobs Posted</p></div></div>
-    <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-info"><h3><?=$bookCount?></h3><p>Total Bookings</p></div></div>
-    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-info"><h3><?=$doneCount?></h3><p>Completed</p></div></div>
+    <div class="stat-card"><div class="stat-icon">ðŸ“‹</div><div class="stat-info"><h3><?=$jobCount?></h3><p>Jobs Posted</p></div></div>
+    <div class="stat-card"><div class="stat-icon">ðŸ“…</div><div class="stat-info"><h3><?=$bookCount?></h3><p>Total Bookings</p></div></div>
+    <div class="stat-card"><div class="stat-icon">âœ…</div><div class="stat-info"><h3><?=$doneCount?></h3><p>Completed</p></div></div>
   </div>
 
   <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem">
-    <a href="<?= BASE_URL ?>/client/browse.php" class="btn btn-primary btn-lg">🔍 Browse Professionals</a>
-    <a href="<?= BASE_URL ?>/client/post_job.php" class="btn btn-secondary btn-lg">➕ Post a Job</a>
+    <a href="<?= BASE_URL ?>/client/browse.php" class="btn btn-primary btn-lg">ðŸ” Browse Professionals</a>
+    <a href="<?= BASE_URL ?>/client/post_job.php" class="btn btn-secondary btn-lg">âž• Post a Job</a>
   </div>
 
   <!-- Open jobs with bids -->
   <?php if(!empty($myOpen)): ?>
   <div class="card" style="margin-bottom:1.5rem">
-    <div class="card-header">📋 Your Open Jobs</div>
+    <div class="card-header">ðŸ“‹ Your Open Jobs</div>
     <div class="card-body" style="padding:0">
       <?php foreach($myOpen as $j): ?>
       <div style="padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem">
         <div>
           <strong><?= htmlspecialchars($j['title']) ?></strong>
           <div style="font-size:0.83rem;color:var(--gray);margin-top:0.2rem">
-            <?= tradeIcon($j['trade']) ?> <?=$j['trade']?> · 📍 <?=$j['location']?> · Budget: $<?=number_format($j['client_budget'],2)?>
+            <?= tradeIcon($j['trade']) ?> <?=$j['trade']?> Â· ðŸ“ <?=$j['location']?> Â· Budget: $<?=number_format($j['client_budget'],2)?>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:0.8rem">
           <?= urgencyBadge($j['urgency']) ?>
           <?php if($j['bid_count']>0): ?>
-            <a href="<?= BASE_URL ?>/client/view_bids.php?job=<?=$j['job_id']?>" class="btn btn-primary btn-sm">💰 <?=$j['bid_count']?> Bid(s)</a>
+            <a href="<?= BASE_URL ?>/client/view_bids.php?job=<?=$j['job_id']?>" class="btn btn-primary btn-sm">ðŸ’° <?=$j['bid_count']?> Bid(s)</a>
           <?php else: ?>
             <span class="badge badge-warning">No bids yet</span>
           <?php endif; ?>
@@ -60,7 +60,7 @@ $recentBooks = $pdo->prepare("SELECT b.*,u.full_name as pro_name,pp.trade FROM b
 
   <!-- Recent bookings -->
   <div class="card">
-    <div class="card-header">📅 Recent Bookings</div>
+    <div class="card-header">ðŸ“… Recent Bookings</div>
     <div class="card-body">
       <?php if(empty($recent)): ?>
         <p style="color:#999;text-align:center;padding:1.5rem">No bookings yet. <a href="<?= BASE_URL ?>/client/browse.php" style="color:var(--primary)">Find a professional!</a></p>
@@ -83,4 +83,5 @@ $recentBooks = $pdo->prepare("SELECT b.*,u.full_name as pro_name,pp.trade FROM b
     </div>
   </div>
 </div>
+<?php include '../includes/footer.php'; ?>
 </body></html>

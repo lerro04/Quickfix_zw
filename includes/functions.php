@@ -3,6 +3,16 @@ require_once __DIR__.'/config.php';
 const PLATFORM_COMMISSION_RATE = 0.10;
 
 function sanitize($d){ return htmlspecialchars(strip_tags(trim($d))); }
+function countUnreadMessages($pdo, $userId){
+    if(!$userId) return 0;
+    try {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM messages WHERE receiver_id=? AND is_read=0");
+        $stmt->execute([(int)$userId]);
+        return (int)$stmt->fetchColumn();
+    } catch(PDOException $e){
+        return 0;
+    }
+}
 function timeAgo($datetime){
     $t = time() - strtotime($datetime);
     if($t < 60) return 'just now';

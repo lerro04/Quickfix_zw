@@ -53,4 +53,5 @@ $jobs = $pdo->query("SELECT j.*,u.full_name as client,(SELECT COUNT(*) FROM bids
   <?=renderPagination($pagination['page'], $pagination['total_pages'])?>
 </div></div>
 </div>
+<?php include '../includes/footer.php'; ?>
 </body></html>

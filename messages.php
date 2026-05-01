@@ -3,13 +3,17 @@ require_once 'includes/auth.php';
 requireLogin();
 require_once 'includes/db.php';
 require_once 'includes/functions.php';
+require_once 'includes/mailer.php';
 $uid=$_SESSION['user_id'];
 $role=$_SESSION['role'];
 
 if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['send'])){
     $to=(int)$_POST['receiver_id'];
     $msg=htmlspecialchars(trim($_POST['message']));
-    if($msg && $to) $pdo->prepare("INSERT INTO messages (sender_id,receiver_id,message) VALUES (?,?,?)")->execute([$uid,$to,$msg]);
+    if($msg && $to){
+        $pdo->prepare("INSERT INTO messages (sender_id,receiver_id,message) VALUES (?,?,?)")->execute([$uid,$to,$msg]);
+        notifyNewMessage($pdo, (int)$pdo->lastInsertId());
+    }
     header('Location: '.BASE_URL.'/messages.php?with='.$to); exit;
 }
 

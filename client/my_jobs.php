@@ -21,7 +21,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
             $newBookingId = (int)$pdo->lastInsertId();
             notifyProBidAccepted($pdo, $bid_id);
             notifyProNewBooking($pdo, $newBookingId);
-            $msg="✅ Bid accepted! Booking created. The professional has been notified.";
+            $msg="âœ… Bid accepted! Booking created. The professional has been notified.";
         }
     }
     if(isset($_POST['reject_bid'])){
@@ -59,7 +59,7 @@ if($view){
 ?>
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>My Jobs — QuickFix ZW</title>
+<title>My Jobs â€” QuickFix ZW</title>
 <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head><body>
@@ -75,9 +75,9 @@ if($view){
       <a href="?job=<?=$j['job_id']?>" style="display:block;padding:0.9rem 1.2rem;border-left:4px solid <?=$view==$j['job_id']?'var(--primary)':'transparent'?>;background:<?=$view==$j['job_id']?'rgba(230,92,0,0.05)':'white'?>;border-bottom:1px solid var(--border);transition:all 0.2s">
         <div style="font-weight:600;font-size:0.9rem"><?=htmlspecialchars(substr($j['title'],0,38))?><?=strlen($j['title']) > 38 ? '...' : ''?></div>
         <div style="font-size:0.78rem;color:#999;margin-top:0.2rem">
-          <?=tradeIcon($j['trade'])?> <?=$j['trade']?> · 
+          <?=tradeIcon($j['trade'])?> <?=$j['trade']?> Â· 
           <span class="badge badge-<?=$j['status']==='open'?'success':($j['status']==='in_progress'?'info':'warning')?>" style="font-size:0.7rem"><?=ucfirst($j['status'])?></span>
-          · <?=$j['bid_count']?> bid(s)
+          Â· <?=$j['bid_count']?> bid(s)
         </div>
       </a>
       <?php endforeach; ?>
@@ -126,10 +126,15 @@ if($view){
         <div>
           <strong style="font-size:1rem"><?=htmlspecialchars($b['pro_name'])?></strong>
           <div style="font-size:0.82rem;color:var(--gray);margin-top:0.2rem">
-            <?=tradeIcon($b['trade'])?> <?=$b['trade']?> · <?=icon('location-dot')?> <?=$b['location']?> · <?=icon('phone')?> <?=$b['phone']?>
+            <?=tradeIcon($b['trade'])?> <?=$b['trade']?> &middot; <?=icon('location-dot')?> <?=$b['location']?>
+            <?php if($b['status']==='accepted'): ?>
+              &middot; <?=icon('phone')?> <?=htmlspecialchars($b['phone'] ?? '')?>
+            <?php else: ?>
+              &middot; <span style="color:#999"><?=icon('lock')?> Contact unlocks after you accept</span>
+            <?php endif; ?>
           </div>
           <div style="font-size:0.82rem;margin-top:0.2rem">
-            <?=stars($b['rating_avg'])?> · <?=$b['jobs_completed']?> jobs · <?=$b['years_experience']?> yrs exp
+            <?=stars($b['rating_avg'])?> Â· <?=$b['jobs_completed']?> jobs Â· <?=$b['years_experience']?> yrs exp
           </div>
         </div>
         <div style="text-align:right">
@@ -141,9 +146,9 @@ if($view){
       <?php if($b['message']): ?><p style="margin:0.7rem 0;font-size:0.88rem;line-height:1.5;color:var(--dark)"><?=htmlspecialchars($b['message'])?></p><?php endif; ?>
       <?php if($b['status']==='pending' && ($job['status'] ?? '') === 'open'): ?>
       <div style="display:flex;gap:0.5rem;margin-top:0.8rem">
-        <form method="POST"><input type="hidden" name="bid_id" value="<?=$b['bid_id']?>"><button name="accept_bid" class="btn btn-success btn-sm" onclick="return confirm('Accept this bid? A booking will be created.')">✅ Accept Bid</button></form>
-        <form method="POST"><input type="hidden" name="bid_id" value="<?=$b['bid_id']?>"><button name="reject_bid" class="btn btn-danger btn-sm">❌ Reject</button></form>
-        <a href="<?= BASE_URL ?>/messages.php?with=<?=$b['professional_id']?>" class="btn btn-outline btn-sm">💬 Message</a>
+        <form method="POST"><input type="hidden" name="bid_id" value="<?=$b['bid_id']?>"><button name="accept_bid" class="btn btn-success btn-sm" onclick="return confirm('Accept this bid? A booking will be created.')">âœ… Accept Bid</button></form>
+        <form method="POST"><input type="hidden" name="bid_id" value="<?=$b['bid_id']?>"><button name="reject_bid" class="btn btn-danger btn-sm">âŒ Reject</button></form>
+        <a href="<?= BASE_URL ?>/messages.php?with=<?=$b['professional_id']?>" class="btn btn-outline btn-sm">ðŸ’¬ Message</a>
       </div>
       <?php endif; ?>
     </div>
@@ -161,4 +166,5 @@ if($view){
   </div>
 </div>
 </div>
+<?php include '../includes/footer.php'; ?>
 </body></html>

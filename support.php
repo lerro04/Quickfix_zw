@@ -115,4 +115,5 @@ $prefillEmail = $_SESSION['email'] ?? '';
   .contact-grid{grid-template-columns:1fr !important}
 }
 </style>
+<?php include 'includes/footer.php'; ?>
 </body></html>

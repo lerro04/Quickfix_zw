@@ -36,7 +36,7 @@ $maxBook = max(array_column($topTrades, 'bookings')) ?: 1;
       <div style="margin-bottom:0.8rem">
         <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem;font-size:0.88rem">
           <span><?=tradeIcon($t['trade'])?> <strong><?=$t['trade']?></strong></span>
-          <span><?=$t['bookings']?> bookings · <span style="color:var(--success)">$<?=number_format($t['revenue'],2)?></span></span>
+          <span><?=$t['bookings']?> bookings Â· <span style="color:var(--success)">$<?=number_format($t['revenue'],2)?></span></span>
         </div>
         <div style="background:var(--border);border-radius:20px;height:8px"><div style="background:linear-gradient(90deg,var(--primary),var(--accent));height:100%;border-radius:20px;width:<?=($t['bookings'] / $maxBook) * 100?>%"></div></div>
       </div>
@@ -89,4 +89,5 @@ $maxBook = max(array_column($topTrades, 'bookings')) ?: 1;
   </div>
 </div>
 </div>
+<?php include '../includes/footer.php'; ?>
 </body></html>

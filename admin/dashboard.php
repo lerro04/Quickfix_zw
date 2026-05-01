@@ -67,4 +67,5 @@ $recent = $pdo->query("SELECT u.*,pp.trade FROM users u LEFT JOIN professional_p
   </div>
 </div>
 </div>
+<?php include '../includes/footer.php'; ?>
 </body></html>

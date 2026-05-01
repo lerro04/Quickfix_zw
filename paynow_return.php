@@ -78,4 +78,5 @@ $success = in_array(strtolower($payment['status']), ['paid','awaiting delivery',
     </div>
   </div>
 </div>
+<?php include __DIR__.'/includes/footer.php'; ?>
 </body></html>

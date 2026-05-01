@@ -180,6 +180,32 @@ function notifyAdminDispute(PDO $pdo, int $bookingId): void {
     sendEmail(MAIL_ADMIN, 'Dispute raised on booking #'.$bk['booking_id'], $body);
 }
 
+function notifyNewMessage(PDO $pdo, int $messageId): void {
+    $q = $pdo->prepare("SELECT m.*, s.full_name AS sender_name, r.full_name AS receiver_name, r.email AS receiver_email FROM messages m JOIN users s ON m.sender_id=s.user_id JOIN users r ON m.receiver_id=r.user_id WHERE m.message_id=?");
+    $q->execute([$messageId]);
+    $row = $q->fetch();
+    if(!$row || empty($row['receiver_email'])) return;
+
+    // Rate-limit: only email if there's no other unread message from this sender
+    // (prevents flurries of messages all triggering email).
+    $other = $pdo->prepare("SELECT COUNT(*) FROM messages WHERE sender_id=? AND receiver_id=? AND is_read=0 AND message_id<>?");
+    $other->execute([$row['sender_id'], $row['receiver_id'], $messageId]);
+    if((int)$other->fetchColumn() > 0) return;
+
+    $url = rtrim(getSiteUrl(), '/').BASE_URL.'/messages.php?with='.(int)$row['sender_id'];
+    $preview = mb_substr($row['message'], 0, 220);
+    $body = emailLayout(
+        'New message from '.$row['sender_name'],
+        '<p>Hi '.htmlspecialchars($row['receiver_name']).',</p>'
+        .'<p><strong>'.htmlspecialchars($row['sender_name']).'</strong> sent you a message on QuickFix ZW:</p>'
+        .'<blockquote style="border-left:3px solid #e65c00;padding:0.6rem 1rem;color:#333;background:#faf7f3;border-radius:4px;margin:1rem 0">'.nl2br(htmlspecialchars($preview)).'</blockquote>'
+        .'<p style="font-size:0.85rem;color:#777">You will not get further emails for this conversation until you have read it.</p>',
+        'Open conversation',
+        $url
+    );
+    sendEmail($row['receiver_email'], 'New message from '.$row['sender_name'], $body);
+}
+
 function notifyAdminContactForm(string $name, string $email, string $subject, string $message): void {
     $body = emailLayout(
         'New contact form submission',

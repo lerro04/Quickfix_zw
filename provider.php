@@ -84,4 +84,5 @@ $canBook = isset($_SESSION['role']) && $_SESSION['role'] === 'client';
   </div>
 <?php endif; ?>
 </div>
+<?php include 'includes/footer.php'; ?>
 </body></html>

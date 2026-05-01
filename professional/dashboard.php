@@ -14,20 +14,20 @@ $recentBids=$pdo->prepare("SELECT b.*,j.title,j.location,j.client_budget,u.full_
 ?>
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Dashboard — QuickFix ZW</title>
+<title>Dashboard â€” QuickFix ZW</title>
 <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head><body>
 <?php include '../includes/navbar.php'; ?>
 <div class="container"><br>
-<?php if(!$p['verified']): ?><div class="alert alert-warning">⚠️ Your account is pending admin verification. You cannot bid on jobs until verified.</div><?php endif; ?>
+<?php if(!$p['verified']): ?><div class="alert alert-warning">âš ï¸ Your account is pending admin verification. You cannot bid on jobs until verified.</div><?php endif; ?>
 
 <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap">
   <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:white;font-weight:700"><?=strtoupper(substr($_SESSION['full_name'],0,1))?></div>
   <div>
     <h2 style="margin:0"><?=htmlspecialchars($_SESSION['full_name'])?></h2>
     <div style="color:var(--primary);font-weight:600"><?=tradeIcon($p['trade'])?> <?=$p['trade']?></div>
-    <div style="font-size:0.85rem;color:var(--gray)"><?=stars($p['rating_avg'])?> (<?=$p['total_reviews']?> reviews) · <?=$p['jobs_completed']?> jobs done</div>
+    <div style="font-size:0.85rem;color:var(--gray)"><?=stars($p['rating_avg'])?> (<?=$p['total_reviews']?> reviews) Â· <?=$p['jobs_completed']?> jobs done</div>
   </div>
   <div style="margin-left:auto">
     <span style="color:var(--<?=$p['is_available']?'success':'gray'?>);font-weight:600">
@@ -38,19 +38,19 @@ $recentBids=$pdo->prepare("SELECT b.*,j.title,j.location,j.client_budget,u.full_
 </div>
 
 <div class="card-grid">
-  <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-info"><h3><?=$openJobs?></h3><p>Open <?=$p['trade']?> Jobs</p></div></div>
-  <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-info"><h3><?=$bidCount?></h3><p>Bids Placed</p></div></div>
-  <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-info"><h3><?=$bookCount?></h3><p>Total Bookings</p></div></div>
-  <div class="stat-card" style="border-left-color:var(--accent)"><div class="stat-icon" style="background:linear-gradient(135deg,var(--accent),#e67e22)">💵</div><div class="stat-info"><h3>$<?=number_format($totalEarned,2)?></h3><p>Total Earned</p></div></div>
+  <div class="stat-card"><div class="stat-icon">ðŸ“‹</div><div class="stat-info"><h3><?=$openJobs?></h3><p>Open <?=$p['trade']?> Jobs</p></div></div>
+  <div class="stat-card"><div class="stat-icon">ðŸ’°</div><div class="stat-info"><h3><?=$bidCount?></h3><p>Bids Placed</p></div></div>
+  <div class="stat-card"><div class="stat-icon">ðŸ“…</div><div class="stat-info"><h3><?=$bookCount?></h3><p>Total Bookings</p></div></div>
+  <div class="stat-card" style="border-left-color:var(--accent)"><div class="stat-icon" style="background:linear-gradient(135deg,var(--accent),#e67e22)">ðŸ’µ</div><div class="stat-info"><h3>$<?=number_format($totalEarned,2)?></h3><p>Total Earned</p></div></div>
 </div>
 
 <div style="display:flex;gap:1rem;flex-wrap:wrap;margin:1rem 0">
-  <a href="<?= BASE_URL ?>/professional/job_board.php" class="btn btn-primary">📋 View Job Board</a>
-  <a href="<?= BASE_URL ?>/professional/profile.php" class="btn btn-secondary">👤 Edit Profile</a>
+  <a href="<?= BASE_URL ?>/professional/job_board.php" class="btn btn-primary">ðŸ“‹ View Job Board</a>
+  <a href="<?= BASE_URL ?>/professional/profile.php" class="btn btn-secondary">ðŸ‘¤ Edit Profile</a>
 </div>
 
 <div class="card">
-  <div class="card-header">💰 Recent Bids</div>
+  <div class="card-header">ðŸ’° Recent Bids</div>
   <div class="card-body">
     <?php if(empty($myBids)): ?><p style="color:#999;text-align:center;padding:1.5rem">No bids yet. <a href="<?= BASE_URL ?>/professional/job_board.php" style="color:var(--primary)">Browse the job board!</a></p>
     <?php else: ?>
@@ -61,7 +61,7 @@ $recentBids=$pdo->prepare("SELECT b.*,j.title,j.location,j.client_budget,u.full_
       <tr>
         <td><strong><?=htmlspecialchars(substr($b['title'],0,35))?></strong></td>
         <td><?=$b['client']?></td>
-        <td>📍 <?=$b['location']?></td>
+        <td>ðŸ“ <?=$b['location']?></td>
         <td style="font-weight:700;color:var(--primary)">$<?=number_format($b['bid_amount'],2)?></td>
         <td><span class="badge badge-<?=$b['status']==='accepted'?'success':($b['status']==='rejected'?'danger':'warning')?>"><?=ucfirst($b['status'])?></span></td>
         <td><?=timeAgo($b['created_at'])?></td>
@@ -73,4 +73,5 @@ $recentBids=$pdo->prepare("SELECT b.*,j.title,j.location,j.client_budget,u.full_
   </div>
 </div>
 </div>
+<?php include '../includes/footer.php'; ?>
 </body></html>

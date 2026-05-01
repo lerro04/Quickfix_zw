@@ -23,15 +23,15 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
         $pdo->prepare("INSERT INTO job_requests (client_id,title,description,trade,location,client_budget,urgency) VALUES (?,?,?,?,?,?,?)")->execute([$uid,$title,$desc,$trade,$loc,$budget,$urg]);
         $jobId = (int)$pdo->lastInsertId();
         notifyProsOfNewJob($pdo, $jobId);
-        $msg = "✅ Job posted! Professionals in your area have been notified.";
+        $msg = "âœ… Job posted! Professionals in your area have been notified.";
     } else {
-        $msg = "⚠️ Please pick a trade.";
+        $msg = "âš ï¸ Please pick a trade.";
     }
 }
 ?>
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Post a Job — QuickFix ZW</title>
+<title>Post a Job â€” QuickFix ZW</title>
 <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head><body>
@@ -63,7 +63,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
         <div class="form-group">
           <label class="form-label">Trade Needed *</label>
           <select name="trade" class="form-select" required onchange="document.getElementById('trade_other_wrap').style.display=this.value==='__other__'?'block':'none'">
-            <option value="">— Select trade —</option>
+            <option value="">â€” Select trade â€”</option>
             <?php foreach($TRADES as $t): ?><option value="<?=htmlspecialchars($t)?>"><?=$t?></option><?php endforeach; ?>
             <option value="__other__">+ Other (specify)</option>
           </select>
@@ -96,4 +96,5 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
   </div>
 </div>
 </div>
+<?php include '../includes/footer.php'; ?>
 </body></html>

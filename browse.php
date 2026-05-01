@@ -109,7 +109,7 @@ $pros = $stmt->fetchAll();
     <div class="pro-name"><?=htmlspecialchars($p['full_name'])?></div>
     <div class="pro-trade"><?=tradeIcon($p['trade'])?> <?=$p['trade']?></div>
     <div class="pro-meta"><?=icon('location-dot')?> <?=htmlspecialchars($p['location'] ?: 'Zimbabwe')?></div>
-    <div class="pro-meta"><?=icon('phone')?> <?=htmlspecialchars($p['phone'] ?: 'Not shared publicly')?></div>
+    <div class="pro-meta" style="color:#999;font-size:0.78rem"><?=icon('lock')?> Phone shared after a booking is confirmed</div>
     <div class="pro-meta"><?=icon('circle-check')?> <?=$p['jobs_completed']?> jobs completed</div>
     <div style="margin:0.3rem 0;font-size:0.9rem"><?=stars($p['rating_avg'])?> <span style="color:#999;font-size:0.8rem">(<?=$p['total_reviews']?> reviews)</span></div>
     <?php if($p['service_area']): ?><div class="pro-meta"><?=icon('map')?> <?=htmlspecialchars($p['service_area'])?></div><?php endif; ?>
@@ -178,4 +178,5 @@ openBook(<?=$bookProviderId?>, 'Selected Professional', 5);
 <?php endif; ?>
 </script>
 <?php endif; ?>
+<?php include 'includes/footer.php'; ?>
 </body></html>

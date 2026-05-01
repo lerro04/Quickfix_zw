@@ -3,6 +3,7 @@ require_once '../includes/auth.php';
 requireRole('professional');
 require_once '../includes/db.php';
 require_once '../includes/functions.php';
+require_once '../includes/mailer.php';
 $uid = $_SESSION['user_id'];
 $msg='';
 
@@ -20,6 +21,8 @@ if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['place_bid'])){
         if($ex->fetch()){ $msg="❌ You already placed a bid on this job."; }
         else {
             $pdo->prepare("INSERT INTO bids (job_id,professional_id,bid_amount,message,estimated_days) VALUES (?,?,?,?,?)")->execute([$job_id,$uid,$amount,$message,$days]);
+            $newBidId = (int)$pdo->lastInsertId();
+            notifyClientOfNewBid($pdo, $newBidId);
             $msg="✅ Bid placed successfully! You'll be notified if the client accepts.";
         }
     }
@@ -35,7 +38,7 @@ $stmt=$pdo->query($q); $jobs=$stmt->fetchAll();
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Job Board — QuickFix ZW</title>
-<link rel="stylesheet" href="/quickfix/css/style.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head><body>
 <?php include '../includes/navbar.php'; ?>
@@ -80,7 +83,7 @@ $stmt=$pdo->query($q); $jobs=$stmt->fetchAll();
     <?php else: ?>
       <button onclick="openBid(<?=$j['job_id']?>,'<?=htmlspecialchars($j['title'],ENT_QUOTES)?>',<?=$j['client_budget']?>)" class="btn btn-primary btn-sm">💰 Place Bid</button>
     <?php endif; ?>
-    <a href="/quickfix/messages.php?with=<?=$j['client_id']?>" class="btn btn-outline btn-sm">💬 Message Client</a>
+    <a href="<?= BASE_URL ?>/messages.php?with=<?=$j['client_id']?>" class="btn btn-outline btn-sm">💬 Message Client</a>
   </div>
 </div>
 <?php endforeach; ?>

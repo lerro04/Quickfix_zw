@@ -3,6 +3,7 @@ require_once '../includes/auth.php';
 requireRole('client');
 require_once '../includes/db.php';
 require_once '../includes/functions.php';
+require_once '../includes/mailer.php';
 $uid = $_SESSION['user_id'];
 $msg='';
 
@@ -16,7 +17,10 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
             $pdo->prepare("UPDATE bids SET status='rejected' WHERE job_id=? AND bid_id!=?")->execute([$b['job_id'],$bid_id]);
             $pdo->prepare("UPDATE job_requests SET status='in_progress', hired_professional=? WHERE job_id=?")->execute([$b['professional_id'],$b['job_id']]);
             $pdo->prepare("INSERT INTO bookings (job_id,client_id,professional_id,bid_id,agreed_amount,status,payment_status) VALUES (?,?,?,?,?,?,?)")->execute([$b['job_id'],$uid,$b['professional_id'],$bid_id,$b['bid_amount'],'confirmed','pending']);
-            $msg="✅ Bid accepted! Booking created. The professional will be in touch.";
+            $newBookingId = (int)$pdo->lastInsertId();
+            notifyProBidAccepted($pdo, $bid_id);
+            notifyProNewBooking($pdo, $newBookingId);
+            $msg="✅ Bid accepted! Booking created. The professional has been notified.";
         }
     }
     if(isset($_POST['reject_bid'])){
@@ -42,7 +46,7 @@ if($view){
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>My Jobs — QuickFix ZW</title>
-<link rel="stylesheet" href="/quickfix/css/style.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head><body>
 <?php include '../includes/navbar.php'; ?>
@@ -64,7 +68,7 @@ if($view){
         </div>
       </a>
       <?php endforeach; ?>
-      <?php if(empty($myJobs)): ?><p style="padding:1.2rem;color:#999;font-size:0.88rem">No jobs yet. <a href="/quickfix/client/post_job.php" style="color:var(--primary)">Post one!</a></p><?php endif; ?>
+      <?php if(empty($myJobs)): ?><p style="padding:1.2rem;color:#999;font-size:0.88rem">No jobs yet. <a href="<?= BASE_URL ?>/client/post_job.php" style="color:var(--primary)">Post one!</a></p><?php endif; ?>
     </div>
   </div>
 
@@ -116,7 +120,7 @@ if($view){
       <div style="display:flex;gap:0.5rem;margin-top:0.8rem">
         <form method="POST"><input type="hidden" name="bid_id" value="<?=$b['bid_id']?>"><button name="accept_bid" class="btn btn-success btn-sm" onclick="return confirm('Accept this bid? A booking will be created.')">✅ Accept Bid</button></form>
         <form method="POST"><input type="hidden" name="bid_id" value="<?=$b['bid_id']?>"><button name="reject_bid" class="btn btn-danger btn-sm">❌ Reject</button></form>
-        <a href="/quickfix/messages.php?with=<?=$b['professional_id']?>" class="btn btn-outline btn-sm">💬 Message</a>
+        <a href="<?= BASE_URL ?>/messages.php?with=<?=$b['professional_id']?>" class="btn btn-outline btn-sm">💬 Message</a>
       </div>
       <?php endif; ?>
     </div>

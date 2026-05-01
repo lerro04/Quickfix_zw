@@ -2,10 +2,13 @@
 session_start();
 require_once 'includes/db.php';
 require_once 'includes/functions.php';
+require_once 'includes/mailer.php';
 
 $canBook = isset($_SESSION['role']) && $_SESSION['role'] === 'client';
 $uid = $_SESSION['user_id'] ?? null;
 $msg = '';
+try { $TRADES = $pdo->query("SELECT name FROM trades WHERE is_active=1 ORDER BY name")->fetchAll(PDO::FETCH_COLUMN); }
+catch(PDOException $e){ /* keep $TRADES from functions.php */ }
 
 if($_SERVER['REQUEST_METHOD'] === 'POST' && $canBook && isset($_POST['direct_book'])){
     $proId = (int)$_POST['pro_id'];
@@ -14,18 +17,28 @@ if($_SERVER['REQUEST_METHOD'] === 'POST' && $canBook && isset($_POST['direct_boo
     $note = htmlspecialchars(trim($_POST['note'] ?? ''));
     if($proId > 0 && $amount > 0 && $sched){
         $pdo->prepare("INSERT INTO bookings (client_id,professional_id,agreed_amount,scheduled_date,status,payment_status) VALUES (?,?,?,?,?,?)")->execute([$uid,$proId,$amount,$sched,'confirmed','pending']);
-        $msg = 'Booking confirmed. The professional will be notified.';
+        $bookingId = (int)$pdo->lastInsertId();
+        notifyProNewBooking($pdo, $bookingId);
+        $msg = 'Booking confirmed. The professional has been notified.';
     }
 }
 
+$q     = trim($_GET['q'] ?? '');
 $trade = $_GET['trade'] ?? '';
-$loc = trim($_GET['loc'] ?? '');
+$loc   = trim($_GET['loc'] ?? '');
 $bookProviderId = (int)($_GET['book'] ?? 0);
 $perPage = 12;
 $currentPage = max(1, (int)($_GET['page'] ?? 1));
 
 $where = " WHERE u.verified=1 AND pp.is_available=1";
 $params = [];
+if($q !== ''){
+    $where .= " AND (u.full_name LIKE ? OR pp.trade LIKE ? OR pp.bio LIKE ? OR pp.service_area LIKE ?)";
+    $params[] = "%$q%";
+    $params[] = "%$q%";
+    $params[] = "%$q%";
+    $params[] = "%$q%";
+}
 if($trade !== ''){
     $where .= " AND pp.trade=?";
     $params[] = $trade;
@@ -49,7 +62,7 @@ $pros = $stmt->fetchAll();
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Browse Professionals - QuickFix ZW</title>
-<link rel="stylesheet" href="/quickfix/css/style.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head><body>
 <?php include 'includes/navbar.php'; ?>
@@ -58,12 +71,16 @@ $pros = $stmt->fetchAll();
 <?php if($msg): ?><div class="alert alert-success"><?=$msg?></div><?php endif; ?>
 <div class="search-bar">
   <form method="GET" style="display:flex;gap:0.8rem;flex-wrap:wrap;width:100%;align-items:flex-end">
-    <div class="form-group" style="margin:0;flex:2;min-width:180px">
-      <label class="form-label">Location</label>
+    <div class="form-group" style="margin:0;flex:2;min-width:220px">
+      <label class="form-label">Search service or provider</label>
+      <input type="text" name="q" class="form-control" placeholder="e.g. plumber, painting, Tafadzwa" value="<?=htmlspecialchars($q)?>">
+    </div>
+    <div class="form-group" style="margin:0;flex:1;min-width:160px">
+      <label class="form-label">Filter by location</label>
       <input type="text" name="loc" class="form-control" placeholder="e.g. Chinhoyi, Harare" value="<?=htmlspecialchars($loc)?>">
     </div>
-    <div class="form-group" style="margin:0;flex:1;min-width:180px">
-      <label class="form-label">Trade</label>
+    <div class="form-group" style="margin:0;flex:1;min-width:160px">
+      <label class="form-label">Filter by trade</label>
       <select name="trade" class="form-select">
         <option value="">All trades</option>
         <?php foreach($TRADES as $t): ?>
@@ -72,13 +89,17 @@ $pros = $stmt->fetchAll();
       </select>
     </div>
     <button type="submit" class="btn btn-primary" style="margin-bottom:0"><?=icon('magnifying-glass')?> Search</button>
-    <a href="/quickfix/browse.php" class="btn btn-outline" style="margin-bottom:0">Clear</a>
+    <a href="<?= BASE_URL ?>/browse.php" class="btn btn-outline" style="margin-bottom:0">Clear</a>
   </form>
 </div>
 
 <div class="section-card" style="padding-bottom:1rem">
-  <p style="color:var(--gray)"><?=$totalPros?> professional(s) found<?= $loc !== '' ? ' for '.htmlspecialchars($loc) : '' ?></p>
-  <p class="metric-note">You can browse freely. Sign in only when you want to message or book a provider.</p>
+  <p style="color:var(--gray)">
+    <?=$totalPros?> professional(s) found
+    <?php if($q !== ''): ?> matching "<strong><?=htmlspecialchars($q)?></strong>"<?php endif; ?>
+    <?php if($loc !== ''): ?> in <strong><?=htmlspecialchars($loc)?></strong><?php endif; ?>
+  </p>
+  <p class="metric-note">Search by service (e.g. plumbing) or by a provider's name. Use the location field to filter to your area.</p>
 </div>
 
 <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
@@ -98,13 +119,13 @@ $pros = $stmt->fetchAll();
       <?php if($canBook): ?>
         <button type="button" onclick="openBook(<?=$p['user_id']?>,'<?=htmlspecialchars($p['full_name'], ENT_QUOTES)?>',<?=$p['hourly_rate']?>)" class="btn btn-primary btn-sm" style="flex:1"><?=icon('calendar-plus')?> Book Now</button>
       <?php else: ?>
-        <a href="/quickfix/provider.php?id=<?=$p['user_id']?>" class="btn btn-primary btn-sm" style="flex:1"><?=icon('id-card')?> View Details</a>
+        <a href="<?= BASE_URL ?>/provider.php?id=<?=$p['user_id']?>" class="btn btn-primary btn-sm" style="flex:1"><?=icon('id-card')?> View Details</a>
       <?php endif; ?>
-      <a href="/quickfix/provider.php?id=<?=$p['user_id']?>" class="btn btn-outline btn-sm"><?=icon('circle-info')?></a>
+      <a href="<?= BASE_URL ?>/provider.php?id=<?=$p['user_id']?>" class="btn btn-outline btn-sm"><?=icon('circle-info')?></a>
       <?php if($canBook): ?>
-        <a href="/quickfix/messages.php?with=<?=$p['user_id']?>" class="btn btn-outline btn-sm"><?=icon('comments')?></a>
+        <a href="<?= BASE_URL ?>/messages.php?with=<?=$p['user_id']?>" class="btn btn-outline btn-sm"><?=icon('comments')?></a>
       <?php else: ?>
-        <a href="/quickfix/index.php#auth" class="btn btn-outline btn-sm"><?=icon('right-to-bracket')?></a>
+        <a href="<?= BASE_URL ?>/login.php" class="btn btn-outline btn-sm"><?=icon('right-to-bracket')?></a>
       <?php endif; ?>
     </div>
   </div>

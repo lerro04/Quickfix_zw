@@ -131,6 +131,20 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 
 -- ============================================================
+-- CONTACT MESSAGES TABLE (public Contact Us form submissions)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS contact_messages (
+    contact_id INT AUTO_INCREMENT PRIMARY KEY,
+    full_name  VARCHAR(100) NOT NULL,
+    email      VARCHAR(100) NOT NULL,
+    phone      VARCHAR(30) DEFAULT NULL,
+    subject    VARCHAR(200) NOT NULL,
+    message    TEXT NOT NULL,
+    is_read    TINYINT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================================
 -- DEMO DATA
 -- All demo accounts use password: password
 -- Hash below = bcrypt of "password"

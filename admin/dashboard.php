@@ -29,42 +29,42 @@ $recent = $pdo->query("SELECT u.*,pp.trade FROM users u LEFT JOIN professional_p
 
 <div class="page-title"><?=icon('gauge-high')?> Admin Dashboard</div>
 <div class="card-grid">
-  <div class="stat-card"><div class="stat-icon"><?=icon('users')?></div><div class="stat-info"><h3><?=$users?></h3><p>Total Users</p></div></div>
-  <div class="stat-card"><div class="stat-icon"><?=icon('user-gear')?></div><div class="stat-info"><h3><?=$pros?></h3><p>Professionals</p></div></div>
-  <div class="stat-card"><div class="stat-icon"><?=icon('house-user')?></div><div class="stat-info"><h3><?=$clients?></h3><p>Clients</p></div></div>
-  <div class="stat-card"><div class="stat-icon"><?=icon('briefcase')?></div><div class="stat-info"><h3><?=$jobs?></h3><p>Open Jobs</p></div></div>
-  <div class="stat-card"><div class="stat-icon"><?=icon('calendar-days')?></div><div class="stat-info"><h3><?=$bookings?></h3><p>Total Bookings</p></div></div>
-  <div class="stat-card" style="border-left-color:var(--accent)"><div class="stat-icon" style="background:linear-gradient(135deg,var(--accent),#e67e22)"><?=icon('coins')?></div><div class="stat-info"><h3>$<?=number_format($platformRevenue,2)?></h3><p>Platform Revenue</p><div class="metric-note">Gross booking value: $<?=number_format($grossBookings,2)?></div><div class="metric-note">Provider payouts: $<?=number_format($providerPayouts,2)?></div></div></div>
+ <div class="stat-card"><div class="stat-icon"><?=icon('users')?></div><div class="stat-info"><h3><?=$users?></h3><p>Total Users</p></div></div>
+ <div class="stat-card"><div class="stat-icon"><?=icon('user-gear')?></div><div class="stat-info"><h3><?=$pros?></h3><p>Professionals</p></div></div>
+ <div class="stat-card"><div class="stat-icon"><?=icon('house-user')?></div><div class="stat-info"><h3><?=$clients?></h3><p>Clients</p></div></div>
+ <div class="stat-card"><div class="stat-icon"><?=icon('briefcase')?></div><div class="stat-info"><h3><?=$jobs?></h3><p>Open Jobs</p></div></div>
+ <div class="stat-card"><div class="stat-icon"><?=icon('calendar-days')?></div><div class="stat-info"><h3><?=$bookings?></h3><p>Total Bookings</p></div></div>
+ <div class="stat-card" style="border-left-color:var(--accent)"><div class="stat-icon" style="background:linear-gradient(135deg,var(--accent),#e67e22)"><?=icon('coins')?></div><div class="stat-info"><h3>$<?=number_format($platformRevenue,2)?></h3><p>Platform Revenue</p><div class="metric-note">Gross booking value: $<?=number_format($grossBookings,2)?></div><div class="metric-note">Provider payouts: $<?=number_format($providerPayouts,2)?></div></div></div>
 </div>
 
 <div style="display:flex;gap:1rem;flex-wrap:wrap;margin:0.5rem 0 1.5rem">
-  <a href="<?= BASE_URL ?>/admin/users.php" class="btn btn-primary"><?=icon('users')?> Manage Users</a>
-  <a href="<?= BASE_URL ?>/admin/jobs.php" class="btn btn-secondary"><?=icon('briefcase')?> All Jobs</a>
-  <a href="<?= BASE_URL ?>/admin/bookings.php" class="btn btn-secondary"><?=icon('calendar-days')?> All Bookings</a>
-  <a href="<?= BASE_URL ?>/admin/disputes.php" class="btn btn-danger"><?=icon('scale-balanced')?> Disputes</a>
-  <a href="<?= BASE_URL ?>/admin/analytics.php" class="btn btn-success"><?=icon('chart-line')?> Analytics</a>
+ <a href="<?= BASE_URL ?>/admin/users.php" class="btn btn-primary"><?=icon('users')?> Manage Users</a>
+ <a href="<?= BASE_URL ?>/admin/jobs.php" class="btn btn-secondary"><?=icon('briefcase')?> All Jobs</a>
+ <a href="<?= BASE_URL ?>/admin/bookings.php" class="btn btn-secondary"><?=icon('calendar-days')?> All Bookings</a>
+ <a href="<?= BASE_URL ?>/admin/disputes.php" class="btn btn-danger"><?=icon('scale-balanced')?> Disputes</a>
+ <a href="<?= BASE_URL ?>/admin/analytics.php" class="btn btn-success"><?=icon('chart-line')?> Analytics</a>
 </div>
 
 <div class="card">
-  <div class="card-header"><?=icon('user-plus')?> Recent Registrations</div>
-  <div class="card-body">
-    <div class="table-wrap"><table>
-      <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Trade</th><th>Location</th><th>Verified</th><th>Joined</th></tr></thead>
-      <tbody>
-      <?php foreach($recent as $u): ?>
-      <tr>
-        <td><strong><?=htmlspecialchars($u['full_name'])?></strong></td>
-        <td><?=htmlspecialchars($u['email'])?></td>
-        <td><span class="badge badge-<?=$u['role']==='admin'?'danger':($u['role']==='professional'?'primary':'success')?>"><?=ucfirst($u['role'])?></span></td>
-        <td><?=$u['trade'] ?? '-'?></td>
-        <td><?=$u['location'] ?? '-'?></td>
-        <td><?=$u['verified'] ? '<span class="badge badge-success">Verified</span>' : '<span class="badge badge-warning">Pending</span>'?></td>
-        <td style="font-size:0.82rem;color:#999"><?=timeAgo($u['created_at'])?></td>
-      </tr>
-      <?php endforeach; ?>
-      </tbody>
-    </table></div>
-  </div>
+ <div class="card-header"><?=icon('user-plus')?> Recent Registrations</div>
+ <div class="card-body">
+ <div class="table-wrap"><table>
+ <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Trade</th><th>Location</th><th>Verified</th><th>Joined</th></tr></thead>
+ <tbody>
+ <?php foreach($recent as $u): ?>
+ <tr>
+ <td><strong><?=htmlspecialchars($u['full_name'])?></strong></td>
+ <td><?=htmlspecialchars($u['email'])?></td>
+ <td><span class="badge badge-<?=$u['role']==='admin'?'danger':($u['role']==='professional'?'primary':'success')?>"><?=ucfirst($u['role'])?></span></td>
+ <td><?=$u['trade'] ?? '-'?></td>
+ <td><?=$u['location'] ?? '-'?></td>
+ <td><?=$u['verified'] ? '<span class="badge badge-success">Verified</span>' : '<span class="badge badge-warning">Pending</span>'?></td>
+ <td style="font-size:0.82rem;color:#999"><?=timeAgo($u['created_at'])?></td>
+ </tr>
+ <?php endforeach; ?>
+ </tbody>
+ </table></div>
+ </div>
 </div>
 </div>
 <?php include '../includes/footer.php'; ?>

@@ -12,3 +12,5 @@ uploads/national_ids/*
 # Environment / local config overrides
 .env
 *.local.php
+
+/includes/paynow_config.php

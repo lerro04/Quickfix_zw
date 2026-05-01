@@ -215,16 +215,71 @@ tbody td { padding:0.8rem 1rem; }
 .site-footer-bottom a:hover { color:var(--primary-light); }
 
 /* RESPONSIVE */
+@media(max-width:1100px){
+    .container { padding-left:1.2rem; padding-right:1.2rem; }
+    .card-grid { grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); }
+}
 @media(max-width:900px){
     .site-footer-inner { grid-template-columns:1fr 1fr; gap:2rem; }
 }
+@media(max-width:820px){
+    /* Sticky navbar wraps onto two rows on tablet */
+    .navbar { height:auto; padding:0.75rem 1rem; flex-wrap:wrap; gap:0.5rem; position:relative; }
+    .navbar-brand { font-size:1.1rem; }
+    .navbar-nav { gap:0.2rem; flex-wrap:wrap; width:100%; justify-content:flex-start; }
+    .nav-link { padding:0.4rem 0.6rem; font-size:0.8rem; }
+    /* Two-column dashboard splits become one column */
+    .detail-grid,
+    .support-grid { grid-template-columns:1fr; }
+    /* My Jobs: sidebar + main was 300px 1fr */
+    .container > div[style*="grid-template-columns:300px"],
+    .container > div[style*="grid-template-columns:280px"] { grid-template-columns:1fr !important; height:auto !important; }
+    /* Messages page chat layout */
+    div[style*="height:calc(100vh"] { height:auto !important; min-height:auto !important; }
+}
 @media(max-width:768px){
-    .form-row,.form-row-3 { grid-template-columns:1fr; }
-    .detail-grid { grid-template-columns:1fr; }
-    .navbar-nav { gap:0; }
-    .nav-link { padding:0.4rem 0.5rem; font-size:0.78rem; }
-    .hero h1 { font-size:1.9rem; }
+    body { font-size:0.93rem; }
+    .container { padding:0 0.9rem; }
+    .form-row,.form-row-3 { grid-template-columns:1fr; gap:0.6rem; }
+    .card-grid { grid-template-columns:1fr; }
+    .hero h1 { font-size:1.7rem; }
+    .hero p { font-size:0.95rem; }
+    .page-title { font-size:1.2rem; }
     .search-bar { flex-direction:column; }
-    .site-footer-inner { grid-template-columns:1fr; }
+    .search-bar form { flex-direction:column !important; align-items:stretch !important; }
+    /* Tables overflow horizontally rather than break the layout */
+    .table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .table-wrap table { min-width:560px; }
+    /* Stack any inline two-col grids the pages declare via inline style */
+    div[style*="grid-template-columns:1fr 1fr"]:not(.card-grid) { grid-template-columns:1fr !important; }
+    /* Wide buttons go full width when crammed */
+    .btn-lg { padding:0.7rem 1rem; font-size:0.9rem; }
+    /* Hero search bar on home */
+    form[action*="browse.php"] > div { flex-direction:column !important; }
+    form[action*="browse.php"] input,
+    form[action*="browse.php"] button { width:100% !important; }
+    /* Modals fit small screens */
+    .modal-box { width:95% !important; max-width:95% !important; max-height:90vh; overflow-y:auto; }
+    /* Footer stacks fully */
+    .site-footer { padding:2rem 1rem 0; }
+    .site-footer-inner { grid-template-columns:1fr; gap:1.4rem; padding-bottom:1.5rem; }
     .site-footer-bottom { flex-direction:column; text-align:center; }
+    /* Pro card grid */
+    .pro-card { padding:1rem; }
+    /* Stat cards */
+    .stat-card { padding:0.9rem 1rem; }
+    .stat-card h3 { font-size:1.4rem; }
+    /* Job cards */
+    .job-card { padding:1rem; }
+    .job-card .job-meta { flex-wrap:wrap; gap:0.4rem; font-size:0.8rem; }
+    /* Auth card */
+    .auth-card { width:95% !important; max-width:95% !important; padding:1.2rem !important; }
+}
+@media(max-width:480px){
+    .navbar-brand .brand-name { font-size:0.95rem; }
+    .nav-link { padding:0.35rem 0.5rem; font-size:0.75rem; }
+    .nav-link span:not(.nav-badge) { display:none; }  /* labels collapse to icons on phone */
+    h1 { font-size:1.4rem; }
+    h2 { font-size:1.15rem; }
+    .btn { padding:0.55rem 0.9rem; font-size:0.85rem; }
 }

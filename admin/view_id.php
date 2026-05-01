@@ -6,8 +6,8 @@ require_once __DIR__.'/../includes/id_upload.php';
 
 $userId = (int)($_GET['user_id'] ?? 0);
 if($userId <= 0){
-    http_response_code(400);
-    exit('Missing user_id.');
+ http_response_code(400);
+ exit('Missing user_id.');
 }
 
 $stmt = $pdo->prepare("SELECT full_name, national_id_file FROM users WHERE user_id=?");
@@ -15,20 +15,20 @@ $stmt->execute([$userId]);
 $user = $stmt->fetch();
 
 if(!$user || empty($user['national_id_file'])){
-    http_response_code(404);
-    exit('No ID document on file for this user.');
+ http_response_code(404);
+ exit('No ID document on file for this user.');
 }
 
 $file = $user['national_id_file'];
 if(strpos($file, '/') !== false || strpos($file, '\\') !== false || strpos($file, '..') !== false){
-    http_response_code(400);
-    exit('Invalid file reference.');
+ http_response_code(400);
+ exit('Invalid file reference.');
 }
 
 $path = ID_UPLOAD_DIR.'/'.$file;
 if(!is_file($path)){
-    http_response_code(404);
-    exit('ID document file is missing on disk.');
+ http_response_code(404);
+ exit('ID document file is missing on disk.');
 }
 
 $mime = idFileMimeFromName($file);

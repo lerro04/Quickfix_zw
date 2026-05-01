@@ -4,10 +4,7 @@
 -- ============================================================
 -- SETUP: Import this file into a database named quickfix_db
 -- via phpMyAdmin → Import tab
--- ============================================================
-
-CREATE DATABASE IF NOT EXISTS quickfix_db;
-USE quickfix_db;
+-- ===========================================================
 
 -- ============================================================
 -- USERS TABLE

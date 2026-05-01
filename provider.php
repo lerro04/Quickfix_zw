@@ -9,14 +9,14 @@ $stmt->execute([$providerId]);
 $provider = $stmt->fetch();
 
 if(!$provider){
-    http_response_code(404);
+ http_response_code(404);
 }
 
 $portfolioImages = [];
 if($provider){
-    $imagesStmt = $pdo->prepare("SELECT * FROM professional_portfolio_images WHERE user_id=? ORDER BY created_at DESC");
-    $imagesStmt->execute([$providerId]);
-    $portfolioImages = $imagesStmt->fetchAll();
+ $imagesStmt = $pdo->prepare("SELECT * FROM professional_portfolio_images WHERE user_id=? ORDER BY created_at DESC");
+ $imagesStmt->execute([$providerId]);
+ $portfolioImages = $imagesStmt->fetchAll();
 }
 
 $canBook = isset($_SESSION['role']) && $_SESSION['role'] === 'client';
@@ -30,58 +30,58 @@ $canBook = isset($_SESSION['role']) && $_SESSION['role'] === 'client';
 <?php include 'includes/navbar.php'; ?>
 <div class="container"><br>
 <?php if(!$provider): ?>
-  <div class="alert alert-danger">This professional profile could not be found.</div>
+ <div class="alert alert-danger">This professional profile could not be found.</div>
 <?php else: ?>
-  <div class="page-title"><?=icon('id-card')?> Professional Details</div>
-  <div class="detail-grid">
-    <div class="section-card">
-      <div class="detail-hero">
-        <div class="pro-avatar" style="margin-bottom:0"><?=strtoupper(substr($provider['full_name'],0,1))?></div>
-        <div>
-          <h2 style="margin-bottom:0.35rem"><?=htmlspecialchars($provider['full_name'])?></h2>
-          <div class="pro-trade"><?=tradeIcon($provider['trade'])?> <?=$provider['trade']?></div>
-          <div class="pro-meta"><?=stars($provider['rating_avg'])?> <span style="margin-left:0.35rem">(<?=$provider['total_reviews']?> reviews)</span></div>
-        </div>
-      </div>
-      <h3 style="margin-bottom:0.75rem">About this professional</h3>
-      <p style="line-height:1.7;color:var(--dark)"><?=nl2br(htmlspecialchars($provider['bio'] ?: 'This professional has not added a full description yet.'))?></p>
+ <div class="page-title"><?=icon('id-card')?> Professional Details</div>
+ <div class="detail-grid">
+ <div class="section-card">
+ <div class="detail-hero">
+ <div class="pro-avatar" style="margin-bottom:0"><?=strtoupper(substr($provider['full_name'],0,1))?></div>
+ <div>
+ <h2 style="margin-bottom:0.35rem"><?=htmlspecialchars($provider['full_name'])?></h2>
+ <div class="pro-trade"><?=tradeIcon($provider['trade'])?> <?=$provider['trade']?></div>
+ <div class="pro-meta"><?=stars($provider['rating_avg'])?> <span style="margin-left:0.35rem">(<?=$provider['total_reviews']?> reviews)</span></div>
+ </div>
+ </div>
+ <h3 style="margin-bottom:0.75rem">About this professional</h3>
+ <p style="line-height:1.7;color:var(--dark)"><?=nl2br(htmlspecialchars($provider['bio'] ?: 'This professional has not added a full description yet.'))?></p>
 
-      <h3 style="margin:1.5rem 0 0.75rem">Work gallery</h3>
-      <?php if(empty($portfolioImages)): ?>
-        <div class="gallery-placeholder"><?=icon('images')?> This professional has not uploaded work samples yet.</div>
-      <?php else: ?>
-        <div class="image-grid">
-          <?php foreach($portfolioImages as $image): ?>
-            <div class="image-tile">
-              <img src="<?=$image['image_path']?>" alt="Portfolio image for <?=htmlspecialchars($provider['full_name'])?>">
-              <div class="image-tile-body"><?=htmlspecialchars($image['original_name'] ?: 'Completed work sample')?></div>
-            </div>
-          <?php endforeach; ?>
-        </div>
-      <?php endif; ?>
-    </div>
+ <h3 style="margin:1.5rem 0 0.75rem">Work gallery</h3>
+ <?php if(empty($portfolioImages)): ?>
+ <div class="gallery-placeholder"><?=icon('images')?> This professional has not uploaded work samples yet.</div>
+ <?php else: ?>
+ <div class="image-grid">
+ <?php foreach($portfolioImages as $image): ?>
+ <div class="image-tile">
+ <img src="<?=$image['image_path']?>" alt="Portfolio image for <?=htmlspecialchars($provider['full_name'])?>">
+ <div class="image-tile-body"><?=htmlspecialchars($image['original_name'] ?: 'Completed work sample')?></div>
+ </div>
+ <?php endforeach; ?>
+ </div>
+ <?php endif; ?>
+ </div>
 
-    <div class="section-card">
-      <h3 style="margin-bottom:1rem">Profile summary</h3>
-      <div class="info-list">
-        <div><?=icon('location-dot')?> <strong>Location:</strong> <?=htmlspecialchars($provider['location'] ?: 'Not provided')?></div>
-        <div><?=icon('map')?> <strong>Service area:</strong> <?=htmlspecialchars($provider['service_area'] ?: 'Not provided')?></div>
-        <div><?=icon('briefcase')?> <strong>Experience:</strong> <?=$provider['years_experience']?> year(s)</div>
-        <div><?=icon('circle-check')?> <strong>Completed jobs:</strong> <?=$provider['jobs_completed']?></div>
-        <div><?=icon('money-bill-wave')?> <strong>Hourly rate:</strong> $<?=number_format($provider['hourly_rate'],2)?></div>
-        <div><?=icon('shield-halved')?> <strong>Verification:</strong> <?=$provider['verified'] ? 'Verified professional' : 'Pending verification'?></div>
-      </div>
-      <div style="display:grid;gap:0.75rem;margin-top:1.25rem">
-        <?php if($canBook): ?>
-          <a href="<?= BASE_URL ?>/browse.php?book=<?=$provider['user_id']?>" class="btn btn-primary"><?=icon('calendar-plus')?> Book this professional</a>
-          <a href="<?= BASE_URL ?>/messages.php?with=<?=$provider['user_id']?>" class="btn btn-outline"><?=icon('comments')?> Message professional</a>
-        <?php else: ?>
-          <a href="<?= BASE_URL ?>/login.php?mode=register" class="btn btn-primary"><?=icon('user-plus')?> Create an account to book</a>
-          <a href="<?= BASE_URL ?>/support.php" class="btn btn-outline"><?=icon('headset')?> Need help choosing?</a>
-        <?php endif; ?>
-      </div>
-    </div>
-  </div>
+ <div class="section-card">
+ <h3 style="margin-bottom:1rem">Profile summary</h3>
+ <div class="info-list">
+ <div><?=icon('location-dot')?> <strong>Location:</strong> <?=htmlspecialchars($provider['location'] ?: 'Not provided')?></div>
+ <div><?=icon('map')?> <strong>Service area:</strong> <?=htmlspecialchars($provider['service_area'] ?: 'Not provided')?></div>
+ <div><?=icon('briefcase')?> <strong>Experience:</strong> <?=$provider['years_experience']?> year(s)</div>
+ <div><?=icon('circle-check')?> <strong>Completed jobs:</strong> <?=$provider['jobs_completed']?></div>
+ <div><?=icon('money-bill-wave')?> <strong>Hourly rate:</strong> $<?=number_format($provider['hourly_rate'],2)?></div>
+ <div><?=icon('shield-halved')?> <strong>Verification:</strong> <?=$provider['verified'] ? 'Verified professional' : 'Pending verification'?></div>
+ </div>
+ <div style="display:grid;gap:0.75rem;margin-top:1.25rem">
+ <?php if($canBook): ?>
+ <a href="<?= BASE_URL ?>/browse.php?book=<?=$provider['user_id']?>" class="btn btn-primary"><?=icon('calendar-plus')?> Book this professional</a>
+ <a href="<?= BASE_URL ?>/messages.php?with=<?=$provider['user_id']?>" class="btn btn-outline"><?=icon('comments')?> Message professional</a>
+ <?php else: ?>
+ <a href="<?= BASE_URL ?>/login.php?mode=register" class="btn btn-primary"><?=icon('user-plus')?> Create an account to book</a>
+ <a href="<?= BASE_URL ?>/support.php" class="btn btn-outline"><?=icon('headset')?> Need help choosing?</a>
+ <?php endif; ?>
+ </div>
+ </div>
+ </div>
 <?php endif; ?>
 </div>
 <?php include 'includes/footer.php'; ?>

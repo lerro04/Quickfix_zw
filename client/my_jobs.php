@@ -146,9 +146,9 @@ if($view){
  <?php if($b['message']): ?><p style="margin:0.7rem 0;font-size:0.88rem;line-height:1.5;color:var(--dark)"><?=htmlspecialchars($b['message'])?></p><?php endif; ?>
  <?php if($b['status']==='pending' && ($job['status'] ?? '') === 'open'): ?>
  <div style="display:flex;gap:0.5rem;margin-top:0.8rem">
- <form method="POST"><input type="hidden" name="bid_id" value="<?=$b['bid_id']?>"><button name="accept_bid" class="btn btn-success btn-sm" onclick="return confirm('Accept this bid? A booking will be created.')"> Accept Bid</button></form>
+ <form method="POST"><input type="hidden" name="bid_id" value="<?=$b['bid_id']?>"><button name="accept_bid" class="btn btn-success btn-sm" onclick="return confirm('Accept this bid? A booking will be created.')">… Accept Bid</button></form>
  <form method="POST"><input type="hidden" name="bid_id" value="<?=$b['bid_id']?>"><button name="reject_bid" class="btn btn-danger btn-sm"> Reject</button></form>
- <a href="<?= BASE_URL ?>/messages.php?with=<?=$b['professional_id']?>" class="btn btn-outline btn-sm"> Message</a>
+ <a href="<?= BASE_URL ?>/messages.php?with=<?=$b['professional_id']?>" class="btn btn-outline btn-sm">¬ Message</a>
  </div>
  <?php endif; ?>
  </div>

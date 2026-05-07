@@ -60,7 +60,7 @@ $success = in_array(strtolower($payment['status']), ['paid','awaiting delivery',
  <div style="font-size:3rem;color:var(--success);margin-bottom:0.5rem"><?=icon('circle-check')?></div>
  <h2 style="margin-bottom:0.5rem">Payment received</h2>
  <p style="color:var(--gray);line-height:1.7">Your payment of <strong>$<?=number_format((float)$payment['amount'], 2)?></strong> for booking #<?=$payment['booking_id']?> has been processed by Paynow.</p>
- <p style="color:var(--gray);line-height:1.7">Funds are held until you confirm the work is complete. The professional has been notified.</p>
+ <p style="color:var(--gray);line-height:1.7">Funds are held until you confirm the work is complete and the professional confirms payment received.</p>
  <?php elseif(strtolower($payment['status']) === 'cancelled'): ?>
  <div style="font-size:3rem;color:var(--danger);margin-bottom:0.5rem"><?=icon('circle-xmark')?></div>
  <h2 style="margin-bottom:0.5rem">Payment cancelled</h2>

@@ -57,7 +57,7 @@ if(in_array($status, ['paid','awaiting delivery','delivered'], true)){
  'Client paid for your booking',
  '<p>Hi '.htmlspecialchars($booking['pro_name']).',</p>'
  .'<p><strong>'.htmlspecialchars($booking['client_name']).'</strong> has paid <strong>$'.number_format((float)$amount,2).'</strong> via Paynow ('.htmlspecialchars($channel ?: 'card').') for your booking.</p>'
- .'<p>The funds are held by the platform and will be released to you once the client confirms the job is complete.</p>',
+ .'<p>The funds are held by the platform. After the client marks the job complete, you must confirm payment received before the net payout is released after commission.</p>',
  '',
  ''
  );

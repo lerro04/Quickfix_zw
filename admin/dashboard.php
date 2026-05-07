@@ -10,8 +10,8 @@ $clients = (int)$pdo->query("SELECT COUNT(*) as c FROM users WHERE role='client'
 $jobs = (int)$pdo->query("SELECT COUNT(*) as c FROM job_requests WHERE status='open'")->fetch()['c'];
 $bookings = (int)$pdo->query("SELECT COUNT(*) as c FROM bookings")->fetch()['c'];
 $grossBookings = (float)$pdo->query("SELECT COALESCE(SUM(agreed_amount),0) as t FROM bookings WHERE payment_status='released'")->fetch()['t'];
-$platformRevenue = $grossBookings * PLATFORM_COMMISSION_RATE;
-$providerPayouts = $grossBookings - $platformRevenue;
+$platformRevenue = (float)$pdo->query("SELECT COALESCE(SUM(CASE WHEN platform_fee_amount IS NULL OR platform_fee_amount = 0 THEN ROUND(agreed_amount * ".(PLATFORM_COMMISSION_RATE * 100)." / 100, 2) ELSE platform_fee_amount END),0) as t FROM bookings WHERE payment_status='released'")->fetch()['t'];
+$providerPayouts = (float)$pdo->query("SELECT COALESCE(SUM(CASE WHEN professional_payout IS NULL OR professional_payout = 0 THEN agreed_amount - ROUND(agreed_amount * ".(PLATFORM_COMMISSION_RATE * 100)." / 100, 2) ELSE professional_payout END),0) as t FROM bookings WHERE payment_status='released'")->fetch()['t'];
 $pending = (int)$pdo->query("SELECT COUNT(*) as c FROM users WHERE verified=0 AND role='professional'")->fetch()['c'];
 $disputes = (int)$pdo->query("SELECT COUNT(*) as c FROM bookings WHERE status='disputed'")->fetch()['c'];
 $recent = $pdo->query("SELECT u.*,pp.trade FROM users u LEFT JOIN professional_profiles pp ON u.user_id=pp.user_id ORDER BY u.created_at DESC LIMIT 10")->fetchAll();

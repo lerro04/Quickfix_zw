@@ -23,23 +23,30 @@ if(!$booking){
  exit('Booking not found.');
 }
 
-if(!in_array($booking['status'], ['confirmed','in_progress'], true)){
+if(!in_array($booking['status'], ['confirmed','in_progress','completed'], true)){
  exit('This booking cannot be paid for in its current state ('.$booking['status'].').');
 }
 if($booking['payment_status'] === 'released'){
  exit('This booking has already been paid out.');
 }
 
-$existing = $pdo->prepare("SELECT * FROM payments WHERE booking_id=? AND status IN ('created','sent','pending') ORDER BY payment_id DESC LIMIT 1");
-$existing->execute([$bookingId]);
+$reference = 'QFX-'.$bookingId.'-'.time();
+$breakdown = bookingPaymentBreakdown($pdo, $booking);
+$amount = round((float)($_POST['payment_amount'] ?? $breakdown['remaining_online']), 2);
+$minimumAmount = $breakdown['commission_due'] > 0 ? $breakdown['commission_due'] : 0.01;
+
+if($amount < $minimumAmount || $amount > $breakdown['remaining_online']){
+ http_response_code(400);
+ exit('Enter a Paynow amount between $'.number_format($minimumAmount, 2).' and $'.number_format($breakdown['remaining_online'], 2).'. The platform commission must be paid before the receiver gets the remaining amount.');
+}
+
+$existing = $pdo->prepare("SELECT * FROM payments WHERE booking_id=? AND ABS(amount - ?) < 0.01 AND status IN ('created','sent','pending') ORDER BY payment_id DESC LIMIT 1");
+$existing->execute([$bookingId, $amount]);
 $pending = $existing->fetch();
 if($pending && $pending['browser_url']){
  header('Location: '.$pending['browser_url']);
  exit;
 }
-
-$reference = 'QFX-'.$bookingId.'-'.time();
-$amount = (float)$booking['agreed_amount'];
 
 $base = getSiteUrl().BASE_URL;
 $returnUrl = $base.'/paynow_return.php?ref='.urlencode($reference);

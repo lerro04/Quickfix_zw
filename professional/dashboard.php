@@ -8,7 +8,7 @@ $uid = $_SESSION['user_id'];
 $prof = $pdo->prepare("SELECT pp.*,u.location,u.phone,u.verified FROM professional_profiles pp JOIN users u ON pp.user_id=u.user_id WHERE pp.user_id=?"); $prof->execute([$uid]); $p=$prof->fetch();
 $bids = $pdo->prepare("SELECT COUNT(*) as c FROM bids WHERE professional_id=?"); $bids->execute([$uid]); $bidCount=$bids->fetch()['c'];
 $books= $pdo->prepare("SELECT COUNT(*) as c FROM bookings WHERE professional_id=?"); $books->execute([$uid]); $bookCount=$books->fetch()['c'];
-$earned=$pdo->prepare("SELECT COALESCE(SUM(agreed_amount),0) as t FROM bookings WHERE professional_id=? AND payment_status='released'"); $earned->execute([$uid]); $totalEarned=$earned->fetch()['t'];
+$earned=$pdo->prepare("SELECT COALESCE(SUM(CASE WHEN professional_payout IS NULL OR professional_payout = 0 THEN agreed_amount - ROUND(agreed_amount * ? / 100, 2) ELSE professional_payout END),0) as t FROM bookings WHERE professional_id=? AND payment_status='released'"); $earned->execute([PLATFORM_COMMISSION_RATE * 100,$uid]); $totalEarned=$earned->fetch()['t'];
 $openJobsStmt = $pdo->prepare("SELECT COUNT(*) as c FROM job_requests WHERE status='open' AND trade=?"); $openJobsStmt->execute([$p['trade']]); $openJobs = $openJobsStmt->fetch()['c'];
 $recentBids=$pdo->prepare("SELECT b.*,j.title,j.location,j.client_budget,u.full_name as client FROM bids b JOIN job_requests j ON b.job_id=j.job_id JOIN users u ON j.client_id=u.user_id WHERE b.professional_id=? ORDER BY b.created_at DESC LIMIT 5"); $recentBids->execute([$uid]); $myBids=$recentBids->fetchAll();
 ?>
@@ -41,7 +41,7 @@ $recentBids=$pdo->prepare("SELECT b.*,j.title,j.location,j.client_budget,u.full_
  <div class="stat-card"><div class="stat-icon"><?=icon('briefcase')?></div><div class="stat-info"><h3><?=$openJobs?></h3><p>Open <?=htmlspecialchars($p['trade'])?> Jobs</p></div></div>
  <div class="stat-card"><div class="stat-icon"><?=icon('sack-dollar')?></div><div class="stat-info"><h3><?=$bidCount?></h3><p>Bids Placed</p></div></div>
  <div class="stat-card"><div class="stat-icon"><?=icon('calendar-days')?></div><div class="stat-info"><h3><?=$bookCount?></h3><p>Total Bookings</p></div></div>
- <div class="stat-card" style="border-left-color:var(--accent)"><div class="stat-icon" style="background:linear-gradient(135deg,var(--accent),#e67e22)"><?=icon('money-bill-wave')?></div><div class="stat-info"><h3>$<?=number_format($totalEarned,2)?></h3><p>Total Earned</p></div></div>
+ <div class="stat-card" style="border-left-color:var(--accent)"><div class="stat-icon" style="background:linear-gradient(135deg,var(--accent),#e67e22)"><?=icon('money-bill-wave')?></div><div class="stat-info"><h3>$<?=number_format($totalEarned,2)?></h3><p>Total Earned</p><div class="metric-note">After platform commission</div></div></div>
 </div>
 
 <?php if(empty($p['bio'])): ?>

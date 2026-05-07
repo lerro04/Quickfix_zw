@@ -22,6 +22,34 @@ function countUnreadMessages($pdo, $userId){
  return 0;
  }
 }
+function platformCommissionAmount(float $amount): float {
+ return round($amount * PLATFORM_COMMISSION_RATE, 2);
+}
+function bookingPaidOnlineAmount(PDO $pdo, int $bookingId): float {
+ $stmt = $pdo->prepare("SELECT COALESCE(SUM(CASE WHEN paid_amount IS NULL OR paid_amount = 0 THEN amount ELSE paid_amount END),0) FROM payments WHERE booking_id=? AND LOWER(status) IN ('paid','awaiting delivery','delivered','completed')");
+ $stmt->execute([$bookingId]);
+ return round((float)$stmt->fetchColumn(), 2);
+}
+function bookingPaymentBreakdown(PDO $pdo, array $booking): array {
+ $agreed = round((float)$booking['agreed_amount'], 2);
+ $onlinePaid = bookingPaidOnlineAmount($pdo, (int)$booking['booking_id']);
+ $fee = platformCommissionAmount($agreed);
+ $netPayout = max(0, round($agreed - $fee, 2));
+ $cashExpected = max(0, round($agreed - $onlinePaid, 2));
+ $platformPayout = max(0, round($onlinePaid - $fee, 2));
+ $commissionDue = max(0, round($fee - $onlinePaid, 2));
+ return [
+ 'agreed' => $agreed,
+ 'online_paid' => $onlinePaid,
+ 'cash_expected' => $cashExpected,
+ 'commission' => $fee,
+ 'commission_due' => $commissionDue,
+ 'commission_covered' => $commissionDue <= 0,
+ 'net_payout' => $netPayout,
+ 'platform_payout' => $platformPayout,
+ 'remaining_online' => max(0, round($agreed - $onlinePaid, 2)),
+ ];
+}
 function timeAgo($datetime){
  $t = time() - strtotime($datetime);
  if($t < 60) return 'just now';

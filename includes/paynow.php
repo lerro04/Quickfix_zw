@@ -36,9 +36,11 @@ class Paynow {
  'additionalinfo' => $additionalInfo !== '' ? $additionalInfo : ('QuickFix booking '.$reference),
  'returnurl' => $this->returnUrl,
  'resulturl' => $this->resultUrl,
- 'authemail' => $authEmail,
  'status' => 'Message',
  ];
+ if(trim($authEmail) !== ''){
+ $payload['authemail'] = trim($authEmail);
+ }
  $payload['hash'] = $this->createHash($payload);
  $body = $this->postUrlencoded(self::URL_INITIATE, $payload);
  return $this->parseResponse($body);

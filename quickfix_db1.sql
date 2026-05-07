@@ -68,7 +68,7 @@ CREATE TABLE `bookings` (
   `payment_status` enum('pending','held','released','refunded') DEFAULT 'pending',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `completed_at` timestamp NULL DEFAULT NULL,
-  `platform_fee_pct` decimal(5,2) DEFAULT 5.00,
+  `platform_fee_pct` decimal(5,2) DEFAULT 10.00,
   `platform_fee_amount` decimal(10,2) DEFAULT 0.00,
   `professional_payout` decimal(10,2) DEFAULT 0.00,
   `payment_method` enum('ecocash','onemoney','zimswitich','bank_transfer','cash') DEFAULT 'cash',
@@ -80,12 +80,12 @@ CREATE TABLE `bookings` (
 --
 
 INSERT INTO `bookings` (`booking_id`, `job_id`, `client_id`, `professional_id`, `bid_id`, `agreed_amount`, `commission_rate`, `commission_amount`, `scheduled_date`, `status`, `payment_status`, `created_at`, `completed_at`, `platform_fee_pct`, `platform_fee_amount`, `professional_payout`, `payment_method`, `payment_reference`) VALUES
-(1, NULL, 6, 8, NULL, 35.00, 10.00, 0.00, '2026-04-17', 'completed', 'released', '2026-04-15 11:45:15', '2026-04-15 12:30:25', 5.00, 1.75, 33.25, 'cash', NULL),
-(2, NULL, 6, 8, NULL, 35.00, 10.00, 0.00, '2026-04-17', 'completed', 'released', '2026-04-15 11:53:51', '2026-04-15 12:30:20', 5.00, 1.75, 33.25, 'cash', NULL),
-(3, 7, 11, 8, 3, 350.00, 10.00, 0.00, NULL, 'in_progress', 'pending', '2026-04-15 12:20:07', NULL, 5.00, 17.50, 332.50, 'cash', NULL),
-(4, 7, 11, 8, 3, 350.00, 10.00, 0.00, NULL, 'disputed', 'pending', '2026-04-15 12:21:15', NULL, 5.00, 17.50, 332.50, 'cash', NULL),
-(5, 1, 6, 10, 4, 25.00, 10.00, 0.00, NULL, 'completed', 'released', '2026-04-15 12:28:21', '2026-04-15 12:29:39', 5.00, 1.25, 23.75, 'cash', NULL),
-(6, NULL, 13, 9, NULL, 6.00, 10.00, 0.00, '2026-04-29', 'completed', 'released', '2026-04-20 09:10:37', '2026-04-20 09:11:05', 5.00, 0.30, 5.70, 'cash', NULL);
+(1, NULL, 6, 8, NULL, 35.00, 10.00, 0.00, '2026-04-17', 'completed', 'released', '2026-04-15 11:45:15', '2026-04-15 12:30:25', 10.00, 3.50, 31.50, 'cash', NULL),
+(2, NULL, 6, 8, NULL, 35.00, 10.00, 0.00, '2026-04-17', 'completed', 'released', '2026-04-15 11:53:51', '2026-04-15 12:30:20', 10.00, 3.50, 31.50, 'cash', NULL),
+(3, 7, 11, 8, 3, 350.00, 10.00, 0.00, NULL, 'in_progress', 'pending', '2026-04-15 12:20:07', NULL, 10.00, 35.00, 315.00, 'cash', NULL),
+(4, 7, 11, 8, 3, 350.00, 10.00, 0.00, NULL, 'disputed', 'pending', '2026-04-15 12:21:15', NULL, 10.00, 35.00, 315.00, 'cash', NULL),
+(5, 1, 6, 10, 4, 25.00, 10.00, 0.00, NULL, 'completed', 'released', '2026-04-15 12:28:21', '2026-04-15 12:29:39', 10.00, 2.50, 22.50, 'cash', NULL),
+(6, NULL, 13, 9, NULL, 6.00, 10.00, 0.00, '2026-04-29', 'completed', 'released', '2026-04-20 09:10:37', '2026-04-20 09:11:05', 10.00, 0.60, 5.40, 'cash', NULL);
 
 --
 -- Triggers `bookings`
@@ -212,11 +212,15 @@ CREATE TABLE `payments` (
   `client_id` int(11) NOT NULL,
   `amount` decimal(10,2) NOT NULL,
   `reference` varchar(100) DEFAULT NULL,
+  `paynow_reference` varchar(120) DEFAULT NULL,
   `browser_url` varchar(500) DEFAULT NULL,
   `poll_url` varchar(500) DEFAULT NULL,
-  `status` enum('created','sent','pending','completed','failed','refunded') DEFAULT 'created',
+  `status` varchar(40) DEFAULT 'created',
+  `paid_amount` decimal(10,2) DEFAULT 0.00,
+  `payment_method` varchar(40) DEFAULT NULL,
   `raw_response` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

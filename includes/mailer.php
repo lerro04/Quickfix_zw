@@ -149,15 +149,18 @@ function notifyProPaymentReleased(PDO $pdo, int $bookingId): void {
  $q->execute([$bookingId]);
  $bk = $q->fetch();
  if(!$bk) return;
+ $fee = platformCommissionAmount((float)$bk['agreed_amount']);
+ $payout = max(0, (float)$bk['agreed_amount'] - $fee);
  $body = emailLayout(
  'Payment released for your job',
  '<p>Hi '.htmlspecialchars($bk['pro_name']).',</p>'
- .'<p>Payment of <strong>$'.number_format((float)$bk['agreed_amount'],2).'</strong> has been released for the job you completed for '.htmlspecialchars($bk['client_name']).'.</p>'
+ .'<p>Your net payout of <strong>$'.number_format($payout,2).'</strong> has been released for the job you completed for '.htmlspecialchars($bk['client_name']).'.</p>'
+ .'<p>Platform commission deducted: <strong>$'.number_format($fee,2).'</strong> from the agreed amount of <strong>$'.number_format((float)$bk['agreed_amount'],2).'</strong>.</p>'
  .'<p>Funds will reflect at the next settlement window. Thank you for using QuickFix ZW.</p>',
  '',
  ''
  );
- sendEmail($bk['pro_email'], 'Payment released — $'.number_format((float)$bk['agreed_amount'],2), $body);
+ sendEmail($bk['pro_email'], 'Payment released - $'.number_format($payout,2), $body);
 }
 
 function notifyAdminDispute(PDO $pdo, int $bookingId): void {

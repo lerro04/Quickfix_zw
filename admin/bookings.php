@@ -13,7 +13,7 @@ $books=$pdo->query("SELECT b.*,c.full_name as client,p.full_name as professional
 </head><body>
 <?php include '../includes/navbar.php'; ?>
 <div class="container"><br>
-<div class="page-title">… All Bookings (<?=count($books)?>)</div>
+<div class="page-title"> All Bookings (<?=count($books)?>)</div>
 <div class="card"><div class="card-body">
  <div class="table-wrap"><table>
  <thead><tr><th>Client</th><th>Professional</th><th>Trade</th><th>Amount</th><th>Date</th><th>Status</th><th>Payment</th></tr></thead>

@@ -12,13 +12,13 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
  if($name !== ''){
  $stmt = $pdo->prepare("INSERT IGNORE INTO trades (name) VALUES (?)");
  $stmt->execute([$name]);
- $msg = $stmt->rowCount() > 0 ? "… Trade '$name' added." : "Trade '$name' already exists.";
+ $msg = $stmt->rowCount() > 0 ? " Trade '$name' added." : "Trade '$name' already exists.";
  }
  }
  if(isset($_POST['toggle'])){
  $id = (int)$_POST['trade_id'];
  $pdo->prepare("UPDATE trades SET is_active = 1 - is_active WHERE trade_id=?")->execute([$id]);
- $msg = '… Trade updated.';
+ $msg = ' Trade updated.';
  }
  if(isset($_POST['delete'])){
  $id = (int)$_POST['trade_id'];
@@ -33,7 +33,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
  $msg = " Trade '{$row['name']}' is in use by $count record(s). Deactivate it instead of deleting.";
  } else {
  $pdo->prepare("DELETE FROM trades WHERE trade_id=?")->execute([$id]);
- $msg = "… Trade removed.";
+ $msg = " Trade removed.";
  }
  }
  }

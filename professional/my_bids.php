@@ -15,40 +15,40 @@ $bids->execute([$uid]); $myBids=$bids->fetchAll();
 </head><body>
 <?php include '../includes/navbar.php'; ?>
 <div class="container"><br>
-<div class="page-title">° My Bids (<?=count($myBids)?>)</div>
+<div class="page-title"><?=icon('sack-dollar')?> My Bids (<?=count($myBids)?>)</div>
 <?php if(empty($myBids)): ?>
 <div class="alert alert-info">No bids yet. <a href="<?= BASE_URL ?>/professional/job_board.php" style="color:var(--primary)">Browse the job board!</a></div>
 <?php else: ?>
 <?php foreach($myBids as $b): ?>
 <div class="job-card">
- <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.8rem">
- <div>
- <div class="job-title"><?=htmlspecialchars($b['title'])?></div>
- <div class="job-meta">
- <span>¤ <?=$b['client']?></span>
- <span> <?=$b['location']?></span>
- <span>µ Client budget: $<?=number_format($b['client_budget'],2)?></span>
- <span><?=urgencyBadge($b['urgency'])?></span>
- </div>
- <?php if($b['message']): ?>
- <p style="margin-top:0.5rem;font-size:0.88rem;color:var(--gray);line-height:1.5;font-style:italic">"<?=htmlspecialchars(substr($b['message'],0,150))?><?=strlen($b['message'])>150?'...':''?>"</p>
- <?php endif; ?>
- </div>
- <div style="text-align:right">
- <div style="font-size:1.4rem;font-weight:800;color:var(--primary)">$<?=number_format($b['bid_amount'],2)?></div>
- <div style="font-size:0.8rem;color:#999">â± <?=$b['estimated_days']?> day(s)</div>
- <div style="margin-top:0.4rem">
- <span class="badge badge-<?=$b['status']==='accepted'?'success':($b['status']==='rejected'?'danger':'warning')?>"><?=ucfirst($b['status'])?></span>
- <span class="badge badge-<?=$b['job_status']==='open'?'info':'success'?>" style="margin-left:0.3rem">Job: <?=ucfirst($b['job_status'])?></span>
- </div>
- <div style="margin-top:0.4rem;font-size:0.78rem;color:#999"><?=timeAgo($b['created_at'])?></div>
- </div>
- </div>
- <?php if($b['status']==='accepted'): ?>
- <div style="margin-top:0.8rem;padding:0.7rem;background:#d4edda;border-radius:8px;font-size:0.88rem;color:#155724">
- … <strong>Your bid was accepted!</strong> Check <a href="<?= BASE_URL ?>/professional/bookings.php" style="color:var(--success)">My Bookings</a> for details.
- </div>
- <?php endif; ?>
+  <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:0.8rem">
+    <div>
+      <div class="job-title"><?=htmlspecialchars($b['title'])?></div>
+      <div class="job-meta">
+        <span><?=icon('user')?> <?=htmlspecialchars($b['client'])?></span>
+        <span><?=icon('location-dot')?> <?=htmlspecialchars($b['location'])?></span>
+        <span><?=icon('money-bill-wave')?> Client budget: $<?=number_format($b['client_budget'],2)?></span>
+        <span><?=urgencyBadge($b['urgency'])?></span>
+      </div>
+      <?php if($b['message']): ?>
+      <p style="margin-top:0.5rem;font-size:0.88rem;color:var(--gray);line-height:1.5;font-style:italic">"<?=htmlspecialchars(substr($b['message'],0,150))?><?=strlen($b['message'])>150?'...':''?>"</p>
+      <?php endif; ?>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:1.4rem;font-weight:800;color:var(--primary)">$<?=number_format($b['bid_amount'],2)?></div>
+      <div style="font-size:0.8rem;color:#999"><?=icon('clock')?> <?=$b['estimated_days']?> day(s)</div>
+      <div style="margin-top:0.4rem">
+        <span class="badge badge-<?=$b['status']==='accepted'?'success':($b['status']==='rejected'?'danger':'warning')?>"><?=ucfirst($b['status'])?></span>
+        <span class="badge badge-<?=$b['job_status']==='open'?'info':'success'?>" style="margin-left:0.3rem">Job: <?=ucfirst($b['job_status'])?></span>
+      </div>
+      <div style="margin-top:0.4rem;font-size:0.78rem;color:#999"><?=timeAgo($b['created_at'])?></div>
+    </div>
+  </div>
+  <?php if($b['status']==='accepted'): ?>
+  <div style="margin-top:0.8rem;padding:0.7rem;background:#d4edda;border-radius:8px;font-size:0.88rem;color:#155724">
+    <?=icon('circle-check')?> <strong>Your bid was accepted!</strong> Check <a href="<?= BASE_URL ?>/professional/bookings.php" style="color:var(--success)">My Bookings</a> for details.
+  </div>
+  <?php endif; ?>
 </div>
 <?php endforeach; ?>
 <?php endif; ?>

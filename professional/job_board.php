@@ -15,19 +15,19 @@ $user->execute([$uid]);
 $u = $user->fetch();
 
 if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['place_bid'])){
- if(!$u['verified']){ $msg="âŒ Your account must be verified before you can bid."; }
+ if(!$u['verified']){ $msg=" Your account must be verified before you can bid."; }
  else {
  $job_id=(int)$_POST['job_id'];
  $amount=(float)$_POST['bid_amount'];
  $message=htmlspecialchars(trim($_POST['bid_message']));
  $days=(int)$_POST['estimated_days'];
  $ex=$pdo->prepare("SELECT bid_id FROM bids WHERE job_id=? AND professional_id=?"); $ex->execute([$job_id,$uid]);
- if($ex->fetch()){ $msg="âŒ You already placed a bid on this job."; }
+ if($ex->fetch()){ $msg=" You already placed a bid on this job."; }
  else {
  $pdo->prepare("INSERT INTO bids (job_id,professional_id,bid_amount,message,estimated_days) VALUES (?,?,?,?,?)")->execute([$job_id,$uid,$amount,$message,$days]);
  $newBidId = (int)$pdo->lastInsertId();
  notifyClientOfNewBid($pdo, $newBidId);
- $msg="… Bid placed successfully! You'll be notified if the client accepts.";
+ $msg=" Bid placed successfully! You'll be notified if the client accepts.";
  }
  }
 }
@@ -109,7 +109,7 @@ if(!empty($jobIds)){
  <?php else: ?>
  <button onclick="openBid(<?=$j['job_id']?>,'<?=htmlspecialchars($j['title'],ENT_QUOTES)?>',<?=$j['client_budget']?>)" class="btn btn-primary btn-sm"><?=icon('sack-dollar')?> Place Bid</button>
  <?php endif; ?>
- <a href="<?= BASE_URL ?>/messages.php?with=<?=$j['client_id']?>" class="btn btn-outline btn-sm">¬ Message Client</a>
+ <a href="<?= BASE_URL ?>/messages.php?with=<?=$j['client_id']?>" class="btn btn-outline btn-sm"> Message Client</a>
  </div>
 </div>
 <?php endforeach; ?>

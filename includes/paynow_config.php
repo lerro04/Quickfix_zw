@@ -9,15 +9,15 @@
 // =============================================================
 
 if(!defined('PAYNOW_INTEGRATION_ID')){
-    // Test integration ID — replace with your live ID for production
-    define('PAYNOW_INTEGRATION_ID', 1201);
+ // Test integration ID — replace with your live ID for production
+ define('PAYNOW_INTEGRATION_ID', 18574);
 }
 
 if(!defined('PAYNOW_INTEGRATION_KEY')){
-    // Test integration key — replace with your live key for production
-    define('PAYNOW_INTEGRATION_KEY', '3e9fed89-60e1-4ce5-ab6e-6b1eb2d4f977');
+ // Test integration key — replace with your live key for production
+ define('PAYNOW_INTEGRATION_KEY', '690290f8-1865-41ad-ac78-5a23fc1740c6');
 }
 
 if(!defined('PAYNOW_TEST_MODE')){
-    define('PAYNOW_TEST_MODE', true);
+ define('PAYNOW_TEST_MODE', false);
 }

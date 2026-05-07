@@ -53,7 +53,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
  $pdo->prepare("UPDATE users SET national_id_file=? WHERE user_id=?")->execute([$newIdFile, $uid]);
  if($oldFile) deleteIdFile($oldFile);
  }
- $msg="… Profile updated successfully!";
+ $msg=" Profile updated successfully!";
  }
  }
 }
@@ -144,7 +144,7 @@ $reviews=$pdo->prepare("SELECT r.*,u.full_name as reviewer FROM reviews r JOIN u
  <input type="file" name="id_file" class="form-control" accept="image/jpeg,image/png,image/webp,application/pdf">
  <small style="color:#999;font-size:0.78rem">JPG, PNG, WEBP or PDF, max 5 MB. Only admins can view this file.</small>
  </div>
- <button type="submit" class="btn btn-primary">¾ Save Profile</button>
+ <button type="submit" class="btn btn-primary"> Save Profile</button>
  </form>
  </div>
  </div>

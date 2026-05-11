@@ -46,6 +46,29 @@ class Paynow {
  return $this->parseResponse($body);
  }
 
+ public function initiateMobile(string $reference, float $amount, string $phone, string $method, string $authEmail = '', string $additionalInfo = ''): array {
+ $methodMap = ['ecocash'=>'ecocash','onemoney'=>'onemoney','innbucks'=>'innbucks','omari'=>'paygo','paygo'=>'paygo'];
+ $methodKey = strtolower($method);
+ if(!isset($methodMap[$methodKey])){
+ throw new RuntimeException('Unsupported mobile method: '.$method);
+ }
+ $payload = [
+ 'id' => $this->id,
+ 'reference' => $reference,
+ 'amount' => number_format($amount, 2, '.', ''),
+ 'additionalinfo' => $additionalInfo !== '' ? $additionalInfo : ('QuickFix booking '.$reference),
+ 'returnurl' => $this->returnUrl,
+ 'resulturl' => $this->resultUrl,
+ 'authemail' => "masukawebs@gmail.com",
+ 'phone' => preg_replace('/\D+/', '', $phone),
+ 'method' => $methodMap[$methodKey],
+ 'status' => 'Message',
+ ];
+ $payload['hash'] = $this->createHash($payload);
+ $body = $this->postUrlencoded(self::URL_REMOTE, $payload);
+ return $this->parseResponse($body);
+ }
+
  public function poll(string $pollUrl): array {
  $body = $this->getRaw($pollUrl);
  return $this->parseResponse($body);

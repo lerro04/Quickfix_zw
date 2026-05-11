@@ -37,7 +37,7 @@ $minimumAmount = $breakdown['commission_due'] > 0 ? $breakdown['commission_due']
 
 if($amount < $minimumAmount || $amount > $breakdown['remaining_online']){
  http_response_code(400);
- exit('Enter a Paynow amount between $'.number_format($minimumAmount, 2).' and $'.number_format($breakdown['remaining_online'], 2).'. The platform commission must be paid before the receiver gets the remaining amount.');
+ exit('Enter a Paynow amount between $'.number_format($minimumAmount, 2).' and $'.number_format($breakdown['remaining_online'], 2).'. The booking deposit must be paid online before the rest can be settled.');
 }
 
 $existing = $pdo->prepare("SELECT * FROM payments WHERE booking_id=? AND ABS(amount - ?) < 0.01 AND status IN ('created','sent','pending') ORDER BY payment_id DESC LIMIT 1");

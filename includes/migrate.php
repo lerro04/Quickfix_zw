@@ -94,6 +94,15 @@ $migrations = [
  platform_fee_amount = ROUND(agreed_amount * 10.00 / 100, 2),
  professional_payout = agreed_amount - ROUND(agreed_amount * 10.00 / 100, 2)
  ",
+ '2026-05-07-pp-latitude' => "
+ ALTER TABLE professional_profiles ADD COLUMN IF NOT EXISTS latitude DECIMAL(10,8) DEFAULT NULL
+ ",
+ '2026-05-07-pp-longitude' => "
+ ALTER TABLE professional_profiles ADD COLUMN IF NOT EXISTS longitude DECIMAL(11,8) DEFAULT NULL
+ ",
+ '2026-05-07-pp-location-label' => "
+ ALTER TABLE professional_profiles ADD COLUMN IF NOT EXISTS location_label VARCHAR(120) DEFAULT NULL
+ ",
 ];
 
 foreach($migrations as $version => $sql){

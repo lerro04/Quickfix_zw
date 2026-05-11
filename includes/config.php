@@ -10,5 +10,15 @@ if(!defined('BASE_URL')){
  $base = substr($scriptName, 0, -strlen($relScript));
  }
  }
- define('BASE_URL', rtrim($base, '/'));
+ // BASE_URL must be just the path (e.g. "/quickfix_zw" or ""), never a full URL.
+ // Code that builds absolute URLs uses getSiteUrl() to prepend scheme+host.
+ define('BASE_URL', $base);
+}
+
+if(!function_exists('getSiteUrl')){
+ function getSiteUrl(): string {
+ $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+ $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+ return $scheme.'://'.$host;
+ }
 }

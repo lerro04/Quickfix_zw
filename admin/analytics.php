@@ -12,7 +12,9 @@ $topTrades = $pdo->query("SELECT pp.trade,COUNT(b.booking_id) as bookings,COALES
 $topPros = $pdo->query("SELECT u.full_name,pp.trade,pp.rating_avg,pp.jobs_completed,COALESCE(SUM(CASE WHEN b.professional_payout IS NULL OR b.professional_payout = 0 THEN b.agreed_amount - ROUND(b.agreed_amount * ".(PLATFORM_COMMISSION_RATE * 100)." / 100, 2) ELSE b.professional_payout END),0) as earned FROM users u JOIN professional_profiles pp ON u.user_id=pp.user_id LEFT JOIN bookings b ON u.user_id=b.professional_id AND b.payment_status='released' GROUP BY u.user_id ORDER BY earned DESC LIMIT 5")->fetchAll();
 $topLocations = $pdo->query("SELECT location, COUNT(*) as count FROM job_requests GROUP BY location ORDER BY count DESC LIMIT 5")->fetchAll();
 $monthlyStats = $pdo->query("SELECT DATE_FORMAT(created_at,'%b %Y') as month, COUNT(*) as bookings, SUM(agreed_amount) as revenue FROM bookings WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH) GROUP BY month ORDER BY created_at ASC")->fetchAll();
-$maxBook = max(array_column($topTrades, 'bookings')) ?: 1;
+$tradeBookings = array_column($topTrades, 'bookings');
+$maxBook = !empty($tradeBookings) ? max($tradeBookings) : 1;
+if($maxBook < 1) $maxBook = 1;
 ?>
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">

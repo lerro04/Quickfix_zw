@@ -14,9 +14,16 @@ $user = $pdo->prepare("SELECT * FROM users WHERE user_id=?");
 $user->execute([$uid]);
 $u = $user->fetch();
 
+$idMissing = empty($u['national_id_file']);
+$idPending = !$idMissing && (int)$u['verified'] === 0;
+$canBid    = !$idMissing && (int)$u['verified'] === 1;
+
 if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['place_bid'])){
- if(!$u['verified']){ $msg=" Your account must be verified before you can bid."; }
- else {
+ if($idMissing){
+ $msg = 'Upload your national ID document on your profile before bidding.';
+ } elseif($idPending){
+ $msg = 'Your ID is awaiting admin verification. You will be able to bid once it is approved.';
+ } else {
  $job_id=(int)$_POST['job_id'];
  $amount=(float)$_POST['bid_amount'];
  $message=htmlspecialchars(trim($_POST['bid_message']));
@@ -60,6 +67,15 @@ if(!empty($jobIds)){
 <?php include '../includes/navbar.php'; ?>
 <div class="container"><br>
 <?php if($msg): ?><div class="alert alert-<?=str_contains(strtolower($msg), 'successfully') ? 'success' : 'danger'?>"><?=$msg?></div><?php endif; ?>
+
+<?php if($idMissing): ?>
+<div class="alert alert-warning" style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+ <div><strong><?=icon('id-card')?> Upload your national ID to start bidding.</strong> Bids are only accepted from professionals with a verified ID on file.</div>
+ <a href="<?= BASE_URL ?>/professional/profile.php" class="btn btn-warning btn-sm"><?=icon('upload')?> Upload ID</a>
+</div>
+<?php elseif($idPending): ?>
+<div class="alert alert-info"><?=icon('hourglass-half')?> <strong>Your ID is awaiting admin verification.</strong> Once approved you can place bids. We will email you when this happens.</div>
+<?php endif; ?>
 
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.2rem">
  <div class="page-title" style="margin:0"><?=icon('briefcase')?> Job Board</div>
@@ -106,6 +122,8 @@ if(!empty($jobIds)){
  <div style="margin-top:0.8rem;display:flex;gap:0.5rem;flex-wrap:wrap">
  <?php if($j['my_bid']): ?>
  <span class="badge badge-success" style="font-size:0.85rem;padding:0.4rem 0.8rem">You already bid on this</span>
+ <?php elseif(!$canBid): ?>
+ <button class="btn btn-primary btn-sm" disabled title="Verify your national ID to bid"><?=icon('lock')?> Place Bid (locked)</button>
  <?php else: ?>
  <button onclick="openBid(<?=$j['job_id']?>,'<?=htmlspecialchars($j['title'],ENT_QUOTES)?>',<?=$j['client_budget']?>)" class="btn btn-primary btn-sm"><?=icon('sack-dollar')?> Place Bid</button>
  <?php endif; ?>

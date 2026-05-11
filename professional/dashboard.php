@@ -5,7 +5,7 @@ require_once '../includes/db.php';
 require_once '../includes/functions.php';
 $uid = $_SESSION['user_id'];
 
-$prof = $pdo->prepare("SELECT pp.*,u.location,u.phone,u.verified FROM professional_profiles pp JOIN users u ON pp.user_id=u.user_id WHERE pp.user_id=?"); $prof->execute([$uid]); $p=$prof->fetch();
+$prof = $pdo->prepare("SELECT pp.*,u.location,u.phone,u.verified,u.national_id_file FROM professional_profiles pp JOIN users u ON pp.user_id=u.user_id WHERE pp.user_id=?"); $prof->execute([$uid]); $p=$prof->fetch();
 $bids = $pdo->prepare("SELECT COUNT(*) as c FROM bids WHERE professional_id=?"); $bids->execute([$uid]); $bidCount=$bids->fetch()['c'];
 $books= $pdo->prepare("SELECT COUNT(*) as c FROM bookings WHERE professional_id=?"); $books->execute([$uid]); $bookCount=$books->fetch()['c'];
 $earned=$pdo->prepare("SELECT COALESCE(SUM(CASE WHEN professional_payout IS NULL OR professional_payout = 0 THEN agreed_amount - ROUND(agreed_amount * ? / 100, 2) ELSE professional_payout END),0) as t FROM bookings WHERE professional_id=? AND payment_status='released'"); $earned->execute([PLATFORM_COMMISSION_RATE * 100,$uid]); $totalEarned=$earned->fetch()['t'];
@@ -20,7 +20,11 @@ $recentBids=$pdo->prepare("SELECT b.*,j.title,j.location,j.client_budget,u.full_
 </head><body>
 <?php include '../includes/navbar.php'; ?>
 <div class="container"><br>
-<?php if(!$p['verified']): ?><div class="alert alert-warning"><?=icon('triangle-exclamation')?> Your account is pending admin verification. You cannot bid on jobs until verified.</div><?php endif; ?>
+<?php if(empty($p['national_id_file'])): ?>
+ <div class="alert alert-warning" style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap"><div><?=icon('id-card')?> <strong>Upload your national ID</strong> on your profile to start bidding on jobs.</div><a href="<?= BASE_URL ?>/professional/profile.php" class="btn btn-warning btn-sm"><?=icon('upload')?> Upload ID</a></div>
+<?php elseif(!$p['verified']): ?>
+ <div class="alert alert-info"><?=icon('hourglass-half')?> Your ID is awaiting admin verification. You will be able to bid once it is approved.</div>
+<?php endif; ?>
 
 <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap">
  <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:white;font-weight:700"><?=strtoupper(substr($_SESSION['full_name'],0,1))?></div>

@@ -1,14 +1,30 @@
 <?php
 require_once __DIR__.'/config.php';
+if(is_file(__DIR__.'/mail_config.php')) require_once __DIR__.'/mail_config.php';
+require_once __DIR__.'/smtp.php';
+require_once __DIR__.'/sms.php';
 
-if(!defined('MAIL_FROM')) define('MAIL_FROM', 'no-reply@quickfixzw.co.zw');
+if(!defined('MAIL_FROM')) define('MAIL_FROM', 'trust@tilltrackpos.co.zw');
 if(!defined('MAIL_FROM_NAME')) define('MAIL_FROM_NAME', 'QuickFix ZW');
-if(!defined('MAIL_ADMIN')) define('MAIL_ADMIN', 'admin@quickfixzw.co.zw');
+if(!defined('MAIL_ADMIN')) define('MAIL_ADMIN', 'trust@tilltrackpos.co.zw');
 if(!defined('MAIL_ENABLED')) define('MAIL_ENABLED', true);
 
 function sendEmail(string $to, string $subject, string $htmlBody): bool {
  if(!MAIL_ENABLED) return false;
  if($to === '' || !filter_var($to, FILTER_VALIDATE_EMAIL)) return false;
+ $sent = false;
+ if(defined('SMTP_HOST') && SMTP_HOST !== ''){
+ $smtp = new SmtpClient(
+ SMTP_HOST,
+ (int)(defined('SMTP_PORT') ? SMTP_PORT : 587),
+ defined('SMTP_SECURE') ? SMTP_SECURE : 'tls',
+ defined('SMTP_USERNAME') ? SMTP_USERNAME : '',
+ defined('SMTP_PASSWORD') ? SMTP_PASSWORD : '',
+ (int)(defined('SMTP_TIMEOUT') ? SMTP_TIMEOUT : 20),
+ (bool)(defined('SMTP_DEBUG') ? SMTP_DEBUG : false)
+ );
+ $sent = $smtp->send(MAIL_FROM, MAIL_FROM_NAME, $to, $subject, $htmlBody, MAIL_FROM);
+ } else {
  $headers = [
  'MIME-Version: 1.0',
  'Content-type: text/html; charset=UTF-8',
@@ -17,6 +33,7 @@ function sendEmail(string $to, string $subject, string $htmlBody): bool {
  'X-Mailer: QuickFixZW/1.0',
  ];
  $sent = @mail($to, $subject, $htmlBody, implode("\r\n", $headers));
+ }
  if(!$sent){
  $logDir = __DIR__.'/../logs';
  if(!is_dir($logDir)) @mkdir($logDir, 0755, true);
@@ -24,7 +41,7 @@ function sendEmail(string $to, string $subject, string $htmlBody): bool {
  '['.date('c')."] to=$to subject=\"$subject\"\n",
  FILE_APPEND);
  }
- return $sent;
+ return (bool)$sent;
 }
 
 function emailLayout(string $heading, string $bodyHtml, string $ctaText = '', string $ctaUrl = ''): string {
@@ -71,9 +88,10 @@ function notifyProsOfNewJob(PDO $pdo, int $jobId): void {
  $j->execute([$jobId]);
  $job = $j->fetch();
  if(!$job) return;
- $pros = $pdo->prepare("SELECT u.user_id, u.full_name, u.email FROM users u JOIN professional_profiles pp ON u.user_id=pp.user_id WHERE pp.trade=? AND u.verified=1 AND pp.is_available=1");
+ $pros = $pdo->prepare("SELECT u.user_id, u.full_name, u.email, u.phone FROM users u JOIN professional_profiles pp ON u.user_id=pp.user_id WHERE pp.trade=? AND u.verified=1 AND pp.is_available=1");
  $pros->execute([$job['trade']]);
  $jobUrl = rtrim(getSiteUrl(), '/').BASE_URL.'/professional/job_board.php';
+ $smsBody = 'QuickFix ZW: New '.$job['trade'].' job in '.$job['location'].' ($'.number_format((float)$job['client_budget'],0).' budget). Bid now: '.$jobUrl;
  foreach($pros->fetchAll() as $pro){
  $body = emailLayout(
  'New '.$job['trade'].' job posted',
@@ -89,11 +107,14 @@ function notifyProsOfNewJob(PDO $pdo, int $jobId): void {
  $jobUrl
  );
  sendEmail($pro['email'], 'New '.$job['trade'].' job: '.$job['title'], $body);
+ if(!empty($pro['phone'])){
+ sendSMS($pro['phone'], $smsBody);
+ }
  }
 }
 
 function notifyClientOfNewBid(PDO $pdo, int $bidId): void {
- $q = $pdo->prepare("SELECT b.*, j.title, j.client_id, c.full_name AS client_name, c.email AS client_email, p.full_name AS pro_name FROM bids b JOIN job_requests j ON b.job_id=j.job_id JOIN users c ON j.client_id=c.user_id JOIN users p ON b.professional_id=p.user_id WHERE b.bid_id=?");
+ $q = $pdo->prepare("SELECT b.*, j.title, j.client_id, c.full_name AS client_name, c.email AS client_email, c.phone AS client_phone, p.full_name AS pro_name FROM bids b JOIN job_requests j ON b.job_id=j.job_id JOIN users c ON j.client_id=c.user_id JOIN users p ON b.professional_id=p.user_id WHERE b.bid_id=?");
  $q->execute([$bidId]);
  $bid = $q->fetch();
  if(!$bid) return;
@@ -108,10 +129,13 @@ function notifyClientOfNewBid(PDO $pdo, int $bidId): void {
  $url
  );
  sendEmail($bid['client_email'], 'New bid on "'.$bid['title'].'"', $body);
+ if(!empty($bid['client_phone'])){
+ sendSMS($bid['client_phone'], 'QuickFix ZW: '.$bid['pro_name'].' bid $'.number_format((float)$bid['bid_amount'],2).' on "'.mb_substr($bid['title'],0,40).'". Review on the app.');
+ }
 }
 
 function notifyProBidAccepted(PDO $pdo, int $bidId): void {
- $q = $pdo->prepare("SELECT b.*, j.title, p.full_name AS pro_name, p.email AS pro_email, c.full_name AS client_name FROM bids b JOIN job_requests j ON b.job_id=j.job_id JOIN users p ON b.professional_id=p.user_id JOIN users c ON j.client_id=c.user_id WHERE b.bid_id=?");
+ $q = $pdo->prepare("SELECT b.*, j.title, p.full_name AS pro_name, p.email AS pro_email, p.phone AS pro_phone, c.full_name AS client_name FROM bids b JOIN job_requests j ON b.job_id=j.job_id JOIN users p ON b.professional_id=p.user_id JOIN users c ON j.client_id=c.user_id WHERE b.bid_id=?");
  $q->execute([$bidId]);
  $bid = $q->fetch();
  if(!$bid) return;
@@ -125,6 +149,9 @@ function notifyProBidAccepted(PDO $pdo, int $bidId): void {
  $url
  );
  sendEmail($bid['pro_email'], 'Bid accepted — '.$bid['title'], $body);
+ if(!empty($bid['pro_phone'])){
+ sendSMS($bid['pro_phone'], 'QuickFix ZW: '.$bid['client_name'].' accepted your bid of $'.number_format((float)$bid['bid_amount'],2).' on "'.mb_substr($bid['title'],0,40).'". Open the app.');
+ }
 }
 
 function notifyProNewBooking(PDO $pdo, int $bookingId): void {
@@ -223,8 +250,3 @@ function notifyAdminContactForm(string $name, string $email, string $subject, st
  sendEmail(MAIL_ADMIN, '[Contact] '.$subject, $body);
 }
 
-function getSiteUrl(): string {
- $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
- $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
- return $scheme.'://'.$host;
-}

@@ -18,7 +18,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
  if($booking){
  $breakdown = bookingPaymentBreakdown($pdo, $booking);
  if(!$breakdown['commission_covered']){
- $msg = 'Please pay the platform commission of $'.number_format($breakdown['commission_due'], 2).' via Paynow before marking this job complete.';
+ $msg = 'Please pay the booking deposit of $'.number_format($breakdown['commission_due'], 2).' via Paynow before marking this job complete.';
  $msgType = 'warning';
  } else {
  $fee = platformCommissionAmount((float)$booking['agreed_amount']);
@@ -98,21 +98,42 @@ $bookings = $books->fetchAll();
  </div>
 
  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.8rem;font-size:0.85rem;color:var(--gray)">
- <span>Paynow paid: <strong>$<?=number_format($pay['online_paid'],2)?></strong></span>
- <span>Cash/direct: <strong>$<?=number_format($pay['cash_expected'],2)?></strong></span>
- <span>Commission: <strong>$<?=number_format($pay['commission'],2)?></strong></span>
- <span>Professional net: <strong>$<?=number_format($pay['net_payout'],2)?></strong></span>
- <?php if(!$pay['commission_covered']): ?><span style="color:var(--danger)">Commission due via Paynow: <strong>$<?=number_format($pay['commission_due'],2)?></strong></span><?php endif; ?>
+ <span>Paid online: <strong>$<?=number_format($pay['online_paid'],2)?></strong></span>
+ <span>Pay direct to pro: <strong>$<?=number_format($pay['cash_expected'],2)?></strong></span>
+ <?php if(!$pay['commission_covered']): ?><span style="color:var(--danger)">Online deposit required: <strong>$<?=number_format($pay['commission_due'],2)?></strong></span><?php endif; ?>
  </div>
 
  <?php if(in_array($b['status'], ['confirmed','in_progress','completed'], true) && $b['payment_status'] !== 'released'): ?>
  <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center">
  <?php if($pay['remaining_online'] > 0 && $b['payment_status'] !== 'released'): ?>
- <form method="POST" action="<?= BASE_URL ?>/paynow_init.php" style="display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center">
+ <details class="pay-details" style="border:1px solid var(--border);border-radius:10px;padding:0.6rem 0.9rem;background:#fafbff;width:100%">
+ <summary style="cursor:pointer;font-weight:700;color:var(--primary)"><?=icon('credit-card')?> Pay $<?=number_format($pay['remaining_online'],2)?> via Paynow</summary>
+ <div style="margin-top:0.7rem;display:flex;flex-direction:column;gap:0.7rem">
+ <div style="display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;font-size:0.88rem">
+ <label>Amount:</label>
+ <input form="pay-form-<?=$b['booking_id']?>" type="number" name="payment_amount" value="<?=number_format($pay['remaining_online'],2,'.','')?>" min="<?=number_format(max(0.01, $pay['commission_due']),2,'.','')?>" max="<?=number_format($pay['remaining_online'],2,'.','')?>" step="0.01" class="form-control" style="width:130px" required>
+ </div>
+ <form method="POST" action="<?= BASE_URL ?>/paynow_init.php" id="pay-form-<?=$b['booking_id']?>" style="display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;margin:0">
  <input type="hidden" name="booking_id" value="<?=$b['booking_id']?>">
- <input type="number" name="payment_amount" class="form-control" value="<?=number_format(max($pay['commission_due'], min($pay['remaining_online'], $pay['remaining_online'])),2,'.','')?>" min="<?=number_format(max(0.01, $pay['commission_due']),2,'.','')?>" max="<?=number_format($pay['remaining_online'],2,'.','')?>" step="0.01" style="width:130px">
- <button type="submit" class="btn btn-primary btn-sm"><?=icon('credit-card')?> Pay via Paynow</button>
+ <button type="submit" class="btn btn-primary btn-sm"><?=icon('globe')?> Pay on Paynow web (cards & all)</button>
  </form>
+ <div style="border-top:1px dashed var(--border);padding-top:0.6rem">
+ <div style="font-size:0.85rem;color:var(--gray);margin-bottom:0.4rem"><strong>Or pay instantly from your phone:</strong></div>
+ <form method="POST" action="<?= BASE_URL ?>/paynow_express.php" style="display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center">
+ <input type="hidden" name="booking_id" value="<?=$b['booking_id']?>">
+ <input type="hidden" name="payment_amount" value="<?=number_format($pay['remaining_online'],2,'.','')?>">
+ <select name="method" class="form-control" required style="width:auto">
+ <option value="ecocash">EcoCash</option>
+ <option value="onemoney">OneMoney</option>
+ <option value="innbucks">InnBucks</option>
+ <option value="omari">Omari</option>
+ </select>
+ <input type="tel" name="mobile_phone" class="form-control" placeholder="0771234567" pattern="^0\d{9}$" required style="width:150px">
+ <button type="submit" class="btn btn-success btn-sm"><?=icon('mobile-screen-button')?> Pay</button>
+ </form>
+ </div>
+ </div>
+ </details>
  <?php endif; ?>
  <?php if($b['payment_status'] === 'held'): ?>
  <span class="badge badge-success">Paynow funds held</span>
@@ -123,7 +144,7 @@ $bookings = $books->fetchAll();
  <button name="complete" class="btn btn-success btn-sm"><?=icon('circle-check')?> Mark Complete</button>
  </form>
  <?php elseif($b['status'] !== 'completed'): ?>
- <span class="badge badge-warning">Pay commission first</span>
+ <span class="badge badge-warning">Pay deposit first</span>
  <?php endif; ?>
  <form method="POST">
  <input type="hidden" name="booking_id" value="<?=$b['booking_id']?>">
@@ -135,7 +156,7 @@ $bookings = $books->fetchAll();
 
  <?php if($b['status']==='completed' && $b['payment_status']==='held'): ?>
  <div style="padding:0.6rem;background:#fff3cd;border-radius:8px;font-size:0.85rem;color:#856404;margin-top:0.5rem">
- Waiting for the professional to confirm payment received. Net payout after commission: $<?=number_format($pay['net_payout'],2)?>.
+ Waiting for the professional to confirm payment received before payout is finalised.
  </div>
  <?php endif; ?>
 

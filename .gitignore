@@ -14,3 +14,5 @@ uploads/national_ids/*
 *.local.php
 
 /includes/paynow_config.php
+/includes/mail_config.php
+/includes/sms_config.php

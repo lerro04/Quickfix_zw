@@ -16,6 +16,13 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
  $avail=(int)($_POST['is_available']??0);
  $phone=normalizePhone($_POST['phone'] ?? '');
  $loc=htmlspecialchars(trim($_POST['location']));
+ $latIn = $_POST['latitude'] ?? '';
+ $lngIn = $_POST['longitude'] ?? '';
+ $latVal = ($latIn !== '' && is_numeric($latIn)) ? round((float)$latIn, 8) : null;
+ $lngVal = ($lngIn !== '' && is_numeric($lngIn)) ? round((float)$lngIn, 8) : null;
+ if($latVal !== null && ($latVal < -90 || $latVal > 90)) $latVal = null;
+ if($lngVal !== null && ($lngVal < -180 || $lngVal > 180)) $lngVal = null;
+ $locLabelIn = htmlspecialchars(trim($_POST['location_label'] ?? ''));
  $nidIn = strtoupper(trim($_POST['national_id'] ?? ''));
  $tradeIn = trim($_POST['trade'] ?? '');
  $tradeOther = trim($_POST['trade_other'] ?? '');
@@ -40,9 +47,9 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
 
  if($err === ''){
  if($tradeIn !== ''){
- $pdo->prepare("UPDATE professional_profiles SET trade=?,bio=?,hourly_rate=?,years_experience=?,service_area=?,is_available=? WHERE user_id=?")->execute([$tradeIn,$bio,$rate,$exp,$area,$avail,$uid]);
+ $pdo->prepare("UPDATE professional_profiles SET trade=?,bio=?,hourly_rate=?,years_experience=?,service_area=?,is_available=?,latitude=?,longitude=?,location_label=? WHERE user_id=?")->execute([$tradeIn,$bio,$rate,$exp,$area,$avail,$latVal,$lngVal,$locLabelIn,$uid]);
  } else {
- $pdo->prepare("UPDATE professional_profiles SET bio=?,hourly_rate=?,years_experience=?,service_area=?,is_available=? WHERE user_id=?")->execute([$bio,$rate,$exp,$area,$avail,$uid]);
+ $pdo->prepare("UPDATE professional_profiles SET bio=?,hourly_rate=?,years_experience=?,service_area=?,is_available=?,latitude=?,longitude=?,location_label=? WHERE user_id=?")->execute([$bio,$rate,$exp,$area,$avail,$latVal,$lngVal,$locLabelIn,$uid]);
  }
  $pdo->prepare("UPDATE users SET phone=?,location=?,national_id=? WHERE user_id=?")->execute([$phone,$loc,$nidIn,$uid]);
 
@@ -120,6 +127,63 @@ $reviews=$pdo->prepare("SELECT r.*,u.full_name as reviewer FROM reviews r JOIN u
  <input type="text" name="location" class="form-control" value="<?=htmlspecialchars($p['location'] ?? '')?>">
  </div>
  </div>
+ <div class="form-group">
+ <label class="form-label">Pin your map location <span style="color:var(--gray);font-weight:400">(so clients see distance to you)</span></label>
+ <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center">
+ <button type="button" id="gps-btn" class="btn btn-outline btn-sm"><?=icon('location-crosshairs')?> Use my current location</button>
+ <span id="gps-label" style="font-size:0.85rem;color:var(--gray)">
+ <?php if(!empty($p['latitude']) && !empty($p['longitude'])): ?>
+ <?=icon('circle-check')?> Pinned at <?=number_format((float)$p['latitude'], 4)?>, <?=number_format((float)$p['longitude'], 4)?><?php if(!empty($p['location_label'])): ?> &middot; <?=htmlspecialchars($p['location_label'])?><?php endif; ?>
+ <?php else: ?>
+ No location pinned yet
+ <?php endif; ?>
+ </span>
+ <?php if(!empty($p['latitude'])): ?>
+ <button type="button" id="gps-clear" class="btn btn-outline btn-sm" style="color:var(--danger)"><?=icon('xmark')?> Clear</button>
+ <?php endif; ?>
+ </div>
+ <input type="hidden" name="latitude" id="lat-input" value="<?=htmlspecialchars((string)($p['latitude'] ?? ''))?>">
+ <input type="hidden" name="longitude" id="lng-input" value="<?=htmlspecialchars((string)($p['longitude'] ?? ''))?>">
+ <input type="hidden" name="location_label" id="locLabel-input" value="<?=htmlspecialchars($p['location_label'] ?? '')?>">
+ <small style="color:var(--gray);font-size:0.78rem;display:block;margin-top:0.4rem">We only store the coordinates &mdash; not your exact address. Clients see <em>"X km away"</em>, not your spot on a map.</small>
+ </div>
+ <script>
+ (function(){
+ var btn = document.getElementById('gps-btn');
+ var clear = document.getElementById('gps-clear');
+ var label = document.getElementById('gps-label');
+ var lat = document.getElementById('lat-input');
+ var lng = document.getElementById('lng-input');
+ var locLabel = document.getElementById('locLabel-input');
+ if(btn){
+ btn.addEventListener('click', function(){
+ if(!navigator.geolocation){
+ label.textContent = 'Geolocation not supported by this browser.';
+ return;
+ }
+ label.textContent = 'Locating...';
+ navigator.geolocation.getCurrentPosition(function(pos){
+ lat.value = pos.coords.latitude.toFixed(8);
+ lng.value = pos.coords.longitude.toFixed(8);
+ var locInput = document.querySelector('input[name="location"]');
+ if(locInput && locInput.value) locLabel.value = locInput.value;
+ label.innerHTML = '<i class="fa-solid fa-circle-check" style="color:var(--success)"></i> Pinned at ' + (+lat.value).toFixed(4) + ', ' + (+lng.value).toFixed(4) + '. Save profile to keep it.';
+ }, function(err){
+ label.textContent = 'Could not get location: ' + (err.message || 'permission denied');
+ }, { enableHighAccuracy: true, timeout: 10000 });
+ });
+ }
+ if(clear){
+ clear.addEventListener('click', function(){
+ lat.value = '';
+ lng.value = '';
+ locLabel.value = '';
+ label.textContent = 'Location cleared. Save profile to remove.';
+ clear.style.display = 'none';
+ });
+ }
+ })();
+ </script>
  <div class="form-group">
  <label class="form-label">Availability</label>
  <select name="is_available" class="form-select">

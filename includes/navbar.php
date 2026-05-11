@@ -46,3 +46,7 @@ $navUnread = isset($_SESSION['user_id']) && isset($pdo) ? countUnreadMessages($p
  <?php endif; ?>
  </div>
 </nav>
+<?php if(isset($_SESSION['user_id'])): ?>
+<script>window.QFX_NOTIFY = { endpoint: '<?= BASE_URL ?>/api/notifications.php', baseUrl: '<?= BASE_URL ?>' };</script>
+<script src="<?= BASE_URL ?>/js/notify.js" defer></script>
+<?php endif; ?>

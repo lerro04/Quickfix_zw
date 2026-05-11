@@ -13,6 +13,18 @@ if(isset($_SESSION['user_id'])){
 $nearLoc = trim($_GET['near'] ?? '');
 $userLat = is_numeric($_GET['lat'] ?? '') ? (float)$_GET['lat'] : null;
 $userLng = is_numeric($_GET['lng'] ?? '') ? (float)$_GET['lng'] : null;
+// Fall back to logged-in user's stored location if no query coords were provided
+if($userLat === null && $userLng === null && isset($_SESSION['user_id'])){
+ try {
+ $sl = $pdo->prepare("SELECT latitude, longitude FROM users WHERE user_id=?");
+ $sl->execute([(int)$_SESSION['user_id']]);
+ $row = $sl->fetch();
+ if($row && $row['latitude'] !== null && $row['longitude'] !== null){
+ $userLat = (float)$row['latitude'];
+ $userLng = (float)$row['longitude'];
+ }
+ } catch(PDOException $e){}
+}
 $useGps  = $userLat !== null && $userLng !== null;
 
 $params = [];
@@ -88,7 +100,14 @@ $nearbyPros = $nearby->fetchAll();
  <input type="text" name="q" placeholder="What do you need help with?" style="flex:1;min-width:0;border:0;outline:none;padding:0.85rem 0.4rem;font-size:1rem;background:transparent;color:var(--dark);font-family:inherit">
  <button type="submit" class="btn btn-primary" style="padding:0.7rem 1.6rem;border-radius:99px;font-size:0.95rem">Search</button>
  </div>
- <div style="margin-top:0.6rem;font-size:0.82rem;color:var(--gray)">Tip: try "plumber Harare" or "electrician Chinhoyi"</div>
+ <div style="margin-top:0.6rem;font-size:0.82rem;color:var(--gray)">
+ Tip: try "plumber Harare" or "electrician Chinhoyi"
+ <?php if($useGps): ?>
+ &middot; <span style="color:var(--primary);font-weight:600"><?=icon('location-crosshairs')?> showing pros near you</span>
+ <?php else: ?>
+ &middot; <a href="#" id="hero-use-loc" style="color:var(--primary);font-weight:600"><?=icon('location-crosshairs')?> Use my location</a>
+ <?php endif; ?>
+ </div>
  </form>
 
  <!-- Trade icons row (TaskRabbit-style category tray) -->
@@ -121,6 +140,20 @@ $nearbyPros = $nearby->fetchAll();
  section h1[style*="font-size:3.4rem"] { font-size:2.2rem !important; }
 }
 </style>
+<script>
+(function(){
+ var heroLink = document.getElementById('hero-use-loc');
+ if(!heroLink) return;
+ heroLink.addEventListener('click', function(e){
+ e.preventDefault();
+ var gpsBtn = document.getElementById('use-gps-btn');
+ if(gpsBtn){
+ gpsBtn.click();
+ gpsBtn.scrollIntoView({ behavior:'smooth', block:'center' });
+ }
+ });
+})();
+</script>
 
 <!-- How it works -->
 <div class="container" style="margin-top:3.5rem">

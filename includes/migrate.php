@@ -103,6 +103,15 @@ $migrations = [
  '2026-05-07-pp-location-label' => "
  ALTER TABLE professional_profiles ADD COLUMN IF NOT EXISTS location_label VARCHAR(120) DEFAULT NULL
  ",
+ '2026-05-11-users-latitude' => "
+ ALTER TABLE users ADD COLUMN IF NOT EXISTS latitude DECIMAL(10,8) DEFAULT NULL
+ ",
+ '2026-05-11-users-longitude' => "
+ ALTER TABLE users ADD COLUMN IF NOT EXISTS longitude DECIMAL(11,8) DEFAULT NULL
+ ",
+ '2026-05-11-users-location-label' => "
+ ALTER TABLE users ADD COLUMN IF NOT EXISTS location_label VARCHAR(120) DEFAULT NULL
+ ",
 ];
 
 foreach($migrations as $version => $sql){

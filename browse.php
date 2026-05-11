@@ -30,6 +30,21 @@ $bookProviderId = (int)($_GET['book'] ?? 0);
 $perPage = 12;
 $currentPage = max(1, (int)($_GET['page'] ?? 1));
 
+$userLat = is_numeric($_GET['lat'] ?? '') ? (float)$_GET['lat'] : null;
+$userLng = is_numeric($_GET['lng'] ?? '') ? (float)$_GET['lng'] : null;
+if($userLat === null && $userLng === null && isset($_SESSION['user_id'])){
+ try {
+ $sl = $pdo->prepare("SELECT latitude, longitude FROM users WHERE user_id=?");
+ $sl->execute([(int)$_SESSION['user_id']]);
+ $row = $sl->fetch();
+ if($row && $row['latitude'] !== null && $row['longitude'] !== null){
+ $userLat = (float)$row['latitude'];
+ $userLng = (float)$row['longitude'];
+ }
+ } catch(PDOException $e){}
+}
+$useGps = $userLat !== null && $userLng !== null;
+
 $where = " WHERE u.verified=1 AND pp.is_available=1";
 $params = [];
 if($q !== ''){
@@ -54,9 +69,16 @@ $countStmt->execute($params);
 $totalPros = (int)$countStmt->fetchColumn();
 $pagination = paginationData($totalPros, $perPage, $currentPage);
 
-$query = "SELECT u.*,pp.* FROM professional_profiles pp JOIN users u ON pp.user_id=u.user_id".$where." ORDER BY pp.rating_avg DESC, pp.jobs_completed DESC LIMIT ".$perPage." OFFSET ".$pagination['offset'];
+$select = "SELECT u.*,pp.*";
+$queryParams = $params;
+if($useGps){
+ $select .= ", (6371 * acos(LEAST(1, cos(radians(?)) * cos(radians(pp.latitude)) * cos(radians(pp.longitude) - radians(?)) + sin(radians(?)) * sin(radians(pp.latitude))))) AS distance_km";
+ array_unshift($queryParams, $userLat, $userLng, $userLat);
+}
+$order = $useGps ? " ORDER BY (pp.latitude IS NULL) ASC, distance_km ASC, pp.rating_avg DESC" : " ORDER BY pp.rating_avg DESC, pp.jobs_completed DESC";
+$query = $select." FROM professional_profiles pp JOIN users u ON pp.user_id=u.user_id".$where.$order." LIMIT ".$perPage." OFFSET ".$pagination['offset'];
 $stmt = $pdo->prepare($query);
-$stmt->execute($params);
+$stmt->execute($queryParams);
 $pros = $stmt->fetchAll();
 ?>
 <!DOCTYPE html><html lang="en"><head>
@@ -93,19 +115,30 @@ $pros = $stmt->fetchAll();
  </form>
 </div>
 
-<div class="section-card" style="padding-bottom:1rem">
+<div class="section-card" style="padding-bottom:1rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap">
+ <div>
  <p style="color:var(--gray)">
  <?=$totalPros?> professional(s) found
  <?php if($q !== ''): ?> matching "<strong><?=htmlspecialchars($q)?></strong>"<?php endif; ?>
  <?php if($loc !== ''): ?> in <strong><?=htmlspecialchars($loc)?></strong><?php endif; ?>
+ <?php if($useGps): ?> &middot; <span style="color:var(--primary);font-weight:600"><?=icon('location-crosshairs')?> sorted by distance from you</span><?php endif; ?>
  </p>
  <p class="metric-note">Search by service (e.g. plumbing) or by a provider's name. Use the location field to filter to your area.</p>
+ </div>
+ <?php if(!$useGps): ?>
+ <button id="use-loc-btn" type="button" class="btn btn-outline btn-sm"><?=icon('location-crosshairs')?> Use my location</button>
+ <?php endif; ?>
 </div>
 
 <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
 <?php foreach($pros as $p): ?>
  <div class="pro-card">
+ <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.5rem">
  <div class="pro-avatar"><?=strtoupper(substr($p['full_name'],0,1))?></div>
+ <?php if($useGps && isset($p['distance_km']) && $p['distance_km'] !== null): ?>
+ <span style="background:#fff7ee;color:var(--primary);border:1px solid #ffd6a8;border-radius:99px;padding:0.25rem 0.6rem;font-size:0.74rem;font-weight:700"><?=icon('location-crosshairs')?> <?=number_format((float)$p['distance_km'],1)?> km</span>
+ <?php endif; ?>
+ </div>
  <div class="pro-name"><?=htmlspecialchars($p['full_name'])?></div>
  <div class="pro-trade"><?=tradeIcon($p['trade'])?> <?=$p['trade']?></div>
  <div class="pro-meta"><?=icon('location-dot')?> <?=htmlspecialchars($p['location'] ?: 'Zimbabwe')?></div>
@@ -178,5 +211,35 @@ openBook(<?=$bookProviderId?>, 'Selected Professional', 5);
 <?php endif; ?>
 </script>
 <?php endif; ?>
+<script>
+(function(){
+ const btn = document.getElementById('use-loc-btn');
+ if(!btn) return;
+ btn.addEventListener('click', function(){
+ if(!navigator.geolocation){ alert('Your browser does not support GPS.'); return; }
+ btn.disabled = true;
+ btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Locating...';
+ navigator.geolocation.getCurrentPosition(function(pos){
+ const url = new URL(window.location.href);
+ url.searchParams.set('lat', pos.coords.latitude.toFixed(6));
+ url.searchParams.set('lng', pos.coords.longitude.toFixed(6));
+ <?php if(isset($_SESSION['user_id'])): ?>
+ const fd = new FormData();
+ fd.append('latitude', pos.coords.latitude);
+ fd.append('longitude', pos.coords.longitude);
+ fd.append('location_label', '');
+ fetch('<?= BASE_URL ?>/api/save_location.php', { method:'POST', body: fd, credentials:'same-origin' })
+ .finally(() => { window.location.href = url.toString(); });
+ <?php else: ?>
+ window.location.href = url.toString();
+ <?php endif; ?>
+ }, function(err){
+ alert('Could not read your location: ' + err.message);
+ btn.disabled = false;
+ btn.innerHTML = '<i class="fa-solid fa-location-crosshairs"></i> Use my location';
+ }, { enableHighAccuracy:true, timeout:10000 });
+ });
+})();
+</script>
 <?php include 'includes/footer.php'; ?>
 </body></html>

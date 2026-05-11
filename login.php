@@ -104,19 +104,23 @@ if($_SERVER['REQUEST_METHOD'] === 'POST'){
 <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
-<body>
-<div style="background:linear-gradient(135deg,#1a1a2e 0%,#c44d00 100%);min-height:100vh;display:flex;flex-direction:column">
- <nav style="display:flex;justify-content:space-between;align-items:center;padding:1.2rem 2rem;gap:1rem;flex-wrap:wrap">
- <a href="<?= BASE_URL ?>/index.php" style="color:white;font-size:1.6rem;font-weight:800;text-decoration:none"><i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> Quick<span style="color:#f96a15">Fix</span> ZW</a>
- <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
- <a href="<?= BASE_URL ?>/index.php" class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.5)"><i class="fa-solid fa-house"></i> Home</a>
- <a href="<?= BASE_URL ?>/browse.php" class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.5)">Browse Services</a>
- <a href="<?= BASE_URL ?>/about.php" class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.5)">About</a>
- <a href="<?= BASE_URL ?>/support.php" class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,0.5)">Contact</a>
+<body style="background:var(--bg)">
+<div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg);position:relative;overflow:hidden">
+ <!-- Decorative corner blobs matching home page hero -->
+ <div aria-hidden="true" style="position:absolute;top:-160px;left:-180px;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#ffe2c2 0%,#ffd29b 60%,transparent 75%);pointer-events:none;z-index:0"></div>
+ <div aria-hidden="true" style="position:absolute;bottom:-140px;right:-140px;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle at 70% 70%,#ffe2c2 0%,#ffc890 70%,transparent 80%);pointer-events:none;z-index:0"></div>
+
+ <nav style="display:flex;justify-content:space-between;align-items:center;padding:1rem 1.5rem;gap:1rem;flex-wrap:wrap;background:#ffffff;border-bottom:1px solid var(--border);box-shadow:0 1px 3px rgba(15,15,18,0.04);position:relative;z-index:2">
+ <a href="<?= BASE_URL ?>/index.php" style="font-size:1.15rem;font-weight:800;color:var(--dark);text-decoration:none;letter-spacing:-0.01em"><i class="fa-solid fa-screwdriver-wrench" style="color:var(--primary)" aria-hidden="true"></i> Quick<span style="color:var(--primary)">Fix</span> ZW</a>
+ <div style="display:flex;gap:0.3rem;flex-wrap:wrap;align-items:center">
+ <a href="<?= BASE_URL ?>/index.php" class="nav-link"><i class="fa-solid fa-house"></i> Home</a>
+ <a href="<?= BASE_URL ?>/browse.php" class="nav-link">Find pros</a>
+ <a href="<?= BASE_URL ?>/about.php" class="nav-link">About</a>
+ <a href="<?= BASE_URL ?>/support.php" class="nav-link">Contact</a>
  </div>
  </nav>
 
- <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:2rem">
+ <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:2rem;position:relative;z-index:1">
  <div class="auth-card" style="flex-shrink:0">
  <div class="auth-logo">
  <h2>Quick<span>Fix</span> ZW</h2>
